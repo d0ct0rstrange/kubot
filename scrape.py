@@ -81,7 +81,7 @@ def update_results():
     saveddetails=csvwrite.read_from_csv()
     savedrd=saveddetails['recentdate']
     savedsrd=saveddetails['secondrecentdate']
-    savedcount=saveddetails['count']
+    savedcount=int(saveddetails['count'])
     
     #Converting to same date format as rd
     savedrd = datetime.strptime(savedrd, "%d/%m/%Y").date() 
@@ -99,33 +99,72 @@ def update_results():
     b=csvwrite.normalizeDate(savedsrd) #secondrecentdate in KU Format
 
     #TODO:uncomment this!
-    #if((savedrd<rd) and currcount>savedcount): 
+    if((savedrd<rd) and currcount>savedcount): 
 
-    #Extracting Region of Interest from page. i.e, data between rd and srd
-    roi=string_clean.extract_roi(out,a,b)
+        #Extracting Region of Interest from page. i.e, data between rd and srd
+        roi=string_clean.extract_roi(out,a,b)
+        
+        count=roi.count("displayList") #displayList is the class name for new result
+        
+        #To filter result names, we want <td> with attrs valign=true and width=false
+        tag="td"
+        attributes={'valign':True,'width':False}
+
+        #output is a dictionary with serial number (1,2,...) and Result name as value
+        output=string_clean.clean_results_nourl(roi,tag,attributes)
+        for results in output.items():
+            tempoutlist=results[1]
+            resname=tempoutlist[0]
+            resurl=tempoutlist[1]
+            print("Result: "+resname+" Download from here:"+resurl)
+        
+        #We've successfully fetched results from saved dates.
+        #Now we need to catchup with the current recent date
+        localrecentdate=csvwrite.normalizeDate(rd)
+        localsecondrecentdate=csvwrite.normalizeDate(savedrd)
+        roi=string_clean.extract_roi(out,localrecentdate,localsecondrecentdate)
+        output2=string_clean.clean_results_nourl(roi,tag,attributes)
+        for results in output2.items():
+            tempoutlist=results[1]
+            resname=tempoutlist[0]
+            resurl=tempoutlist[1]
+            print("Result: "+resname+" Download from here:"+resurl)
+
+    elif(currcount>savedcount): 
+        #Extracting Region of Interest from page. i.e, data between rd and srd
+        roi=string_clean.extract_roi(out,a,b)
+        
+        count=roi.count("displayList") #displayList is the class name for new result
+        
+        #To filter result names, we want <td> with attrs valign=true and width=false
+        tag="td"
+        attributes={'valign':True,'width':False}
+
+        #output is a dictionary with serial number (1,2,...) and Result name as value
+        output=string_clean.clean_results_nourl(roi,tag,attributes)
+        for results in output.items():
+            tempoutlist=results[1]
+            resname=tempoutlist[0]
+            resurl=tempoutlist[1]
+            print("Result: "+resname+" Download from here:"+resurl)
+
+    elif((currcount==savedcount)and (savedrd!=rd)): 
+        localrecentdate=csvwrite.normalizeDate(rd)
+        localsecondrecentdate=csvwrite.normalizeDate(savedrd)
+        roi=string_clean.extract_roi(out,localrecentdate,localsecondrecentdate)
+        output2=string_clean.clean_results_nourl(roi,tag,attributes)
+        for results in output2.items():
+            tempoutlist=results[1]
+            resname=tempoutlist[0]
+            resurl=tempoutlist[1]
+            print("Result: "+resname+" Download from here:"+resurl)
+    else:
+        print("No Updates! Last Fetch time: "+str(datetime.now()))
     
-    count=roi.count("displayList") #displayList is the class name for new result
     
-    #To filter result names, we want <td> with attrs valign=true and width=false
-    tag="td"
-    attributes={'valign':True,'width':False}
-
-    #output is a dictionary with serial number (1,2,...) and Result name as value
-    output=string_clean.clean_results_nourl(roi,tag,attributes)
-    for results in output.items():
-        tempoutlist=results[1]
-        resname=tempoutlist[0]
-        resurl=tempoutlist[1]
-        print("Result: "+resname+" Download from here:"+resurl)
     
-    #We've successfully fetched results from saved dates.
-    #Now we need to catchup with the current recent date
-    localrecentdate=rd
-    localsecondrecentdate=savedrd
-
-
     #Writing dates to data. csv
-    csvwrite.write_to_csv(rd,srd,currcount) 
+    #csvwrite.write_to_csv(rd,srd,currcount) 
 
 update_results()
 

@@ -8,6 +8,7 @@ import time, os, itertools
 #out=r.text
 #a=rd
 #b=srd
+
 def extract_roi(out,a,b):
     c=out.find("Published on "+str(a)) #Start region from rd
     d=out.find("Published on "+str(b)) #Stop region from srd
