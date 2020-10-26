@@ -33,6 +33,41 @@ def checkresultcount():
     count=roi.count("displayList") #displayList is the class name for new result
     return count
 
+def worst_case(out,rd,srd,a,b):
+    savedrd=datetime.strptime(a, "%d/%m/%Y").date() 
+    savedsrd=datetime.strptime(b, "%d/%m/%Y").date() 
+    #Extracting Region of Interest from page. i.e, data between rd and srd
+    roi=string_clean.extract_roi(out,a,b)
+    
+    count=roi.count("displayList") #displayList is the class name for new result
+    
+    #To filter result names, we want <td> with attrs valign=true and width=false
+    tag="td"
+    attributes={'valign':True,'width':False}
+
+    #output is a dictionary with serial number (1,2,...) and Result name as value
+    output=string_clean.clean_results_nourl(roi,tag,attributes)
+    for results in output.items():
+        tempoutlist=results[1]
+        resname=tempoutlist[0]
+        resurl=tempoutlist[1]
+        print("Result: "+resname+" Download from here:"+resurl)
+    
+    #We've successfully fetched results from saved dates.
+    #Now we need to catchup with the current recent date
+    localrecentdate=csvwrite.normalizeDate(rd)
+    localsecondrecentdate=csvwrite.normalizeDate(savedrd)
+    roi=string_clean.extract_roi(out,localrecentdate,localsecondrecentdate)
+    output2=string_clean.clean_results_nourl(roi,tag,attributes)
+    for results in output2.items():
+        tempoutlist=results[1]
+        resname=tempoutlist[0]
+        resurl=tempoutlist[1]
+        print("Result: "+resname+" Download from here:"+resurl)
+
+
+
+
 
 #Function to fetch dates from results page
 #Then update csv with recent, second recent date, last fetch time and results count.
@@ -87,84 +122,56 @@ def update_results():
     savedrd = datetime.strptime(savedrd, "%d/%m/%Y").date() 
     savedsrd = datetime.strptime(savedsrd, "%d/%m/%Y").date() 
 
-    #Worst case scenario. Results of more than one day published, including results between
-    #savedrd and savedsrd.
-    #In this case, actual recent date will be far higher than savedrd
-    #There is also discrepencies between actual second rd and savedsrd
-    #So, first save the results between savedrd and savedsrd, then
-    # update savedrd=currrd, savedsrd=currsrd and fetch the new results.
+    #Results handling
     
     #Reverting datetime object to KU site's slash format
     a=csvwrite.normalizeDate(savedrd) #recentdate in KU Format
     b=csvwrite.normalizeDate(savedsrd) #secondrecentdate in KU Format
 
-    #TODO:uncomment this!
-    if((savedrd<rd) and currcount>savedcount): 
-
-        #Extracting Region of Interest from page. i.e, data between rd and srd
-        roi=string_clean.extract_roi(out,a,b)
-        
-        count=roi.count("displayList") #displayList is the class name for new result
-        
-        #To filter result names, we want <td> with attrs valign=true and width=false
-        tag="td"
-        attributes={'valign':True,'width':False}
-
-        #output is a dictionary with serial number (1,2,...) and Result name as value
-        output=string_clean.clean_results_nourl(roi,tag,attributes)
-        for results in output.items():
-            tempoutlist=results[1]
-            resname=tempoutlist[0]
-            resurl=tempoutlist[1]
-            print("Result: "+resname+" Download from here:"+resurl)
-        
-        #We've successfully fetched results from saved dates.
-        #Now we need to catchup with the current recent date
-        localrecentdate=csvwrite.normalizeDate(rd)
-        localsecondrecentdate=csvwrite.normalizeDate(savedrd)
-        roi=string_clean.extract_roi(out,localrecentdate,localsecondrecentdate)
-        output2=string_clean.clean_results_nourl(roi,tag,attributes)
-        for results in output2.items():
-            tempoutlist=results[1]
-            resname=tempoutlist[0]
-            resurl=tempoutlist[1]
-            print("Result: "+resname+" Download from here:"+resurl)
-
-    elif(currcount>savedcount): 
-        #Extracting Region of Interest from page. i.e, data between rd and srd
-        roi=string_clean.extract_roi(out,a,b)
-        
-        count=roi.count("displayList") #displayList is the class name for new result
-        
-        #To filter result names, we want <td> with attrs valign=true and width=false
-        tag="td"
-        attributes={'valign':True,'width':False}
-
-        #output is a dictionary with serial number (1,2,...) and Result name as value
-        output=string_clean.clean_results_nourl(roi,tag,attributes)
-        for results in output.items():
-            tempoutlist=results[1]
-            resname=tempoutlist[0]
-            resurl=tempoutlist[1]
-            print("Result: "+resname+" Download from here:"+resurl)
-
-    elif((currcount==savedcount)and (savedrd!=rd)): 
-        localrecentdate=csvwrite.normalizeDate(rd)
-        localsecondrecentdate=csvwrite.normalizeDate(savedrd)
-        roi=string_clean.extract_roi(out,localrecentdate,localsecondrecentdate)
-        output2=string_clean.clean_results_nourl(roi,tag,attributes)
-        for results in output2.items():
-            tempoutlist=results[1]
-            resname=tempoutlist[0]
-            resurl=tempoutlist[1]
-            print("Result: "+resname+" Download from here:"+resurl)
-    else:
-        print("No Updates! Last Fetch time: "+str(datetime.now()))
     
+    #Scenario #1. Worst case scenario. Results of more than one day published, including results between
+    #savedrd and savedsrd.
+    #In this case, actual recent date will be far higher than savedrd
+    #There is also discrepencies between actual second rd and savedsrd
+    #So, first save the results between savedrd and savedsrd, then
+    # update savedrd=currrd, savedsrd=currsrd and fetch the new results.
+    #TODO:uncomment this!
+    if((savedrd<rd) and (currcount>savedcount)): 
+        worst_case(out,rd,srd,a,b)
+    
+    #Scenario#2 if results are published in the same day (Best case)
+    elif((currcount>savedcount) and (savedrd==rd)): 
+        #Extracting Region of Interest from page. i.e, data between rd and srd
+        roi=string_clean.extract_roi(out,a,b)
+        
+        count=roi.count("displayList") #displayList is the class name for new result
+        
+        #To filter result names, we want <td> with attrs valign=true and width=false
+        tag="td"
+        attributes={'valign':True,'width':False}
+
+        #output is a dictionary with serial number (1,2,...) and Result name as value
+        output=string_clean.clean_results_nourl(roi,tag,attributes)
+        for results in output.items():
+            tempoutlist=results[1]
+            resname=tempoutlist[0]
+            resurl=tempoutlist[1]
+            print("Result: "+resname+" Download from here:"+resurl)
+    #Scenario#3. If result counts are the same, but results got published on different dates
+    elif((currcount==savedcount)and (savedrd!=rd)): 
+        worst_case(out,rd,srd,a,b)
+    elif((savedrd==rd)and (savedcount==currcount)):
+        print("No Updates! Last Fetch time: "+str(datetime.now()))
+    else:
+        print("Unspecified Error! :( Time: "+str(datetime.now()))
     
     
     #Writing dates to data. csv
-    #csvwrite.write_to_csv(rd,srd,currcount) 
+    try:
+        csvwrite.write_to_csv(rd,srd,currcount)
+        print("Info successfully wrote to data.csv!")
+    except:
+       print("Couldn't write info to data.csv!") 
 
 update_results()
 
@@ -211,3 +218,4 @@ else:
 #f = open("out", "a")
 #f.write(out)
 #f.close()
+
