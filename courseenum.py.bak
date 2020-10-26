@@ -1,0 +1,75 @@
+import requests
+from bs4 import BeautifulSoup as BS
+import re,string
+import csvwrite
+import time
+proxies = {
+ "http": "http://127.0.0.1:8080",
+ "https": "https://127.0.0.1:8080"
+}
+
+url='https://exams.keralauniversity.ac.in/Login/stud_session.php'
+r = requests.get(url)
+out = r.text
+soup=BS(r.text, 'html.parser')
+rows=soup.findAll('option', {"value": re.compile(r"^[0-9]{3}$")})
+streamlist=[]
+for row in rows:
+    streamlist.append(row.get('value')) 
+    #print(streamlist)
+    #print(row.get('value'))
+
+#Fetching PHPSESSID for valid requests
+headers={
+    'Content-Type': 'application/x-www-form-urlencoded'
+}
+url = 'https://exams.keralauniversity.ac.in/Login/getAjaxdetails.php'
+with requests.Session() as s:
+        r = s.post(url,headers=headers)
+        cookie = {'name':'value','PHPSESSID': requests.utils.dict_from_cookiejar(s.cookies)['PHPSESSID']}
+        #print(cookie)
+courselist={}
+var=[]
+cid=[]
+final=[]
+coursename=[]
+for optionvalue in streamlist:
+
+    payload = {'Selcoursecode4pass':optionvalue ,'Selflg':'1'} #test case number 301,flag always 1
+    with requests.Session() as s:
+        r = s.post(url,cookies=cookie,headers=headers, verify=False, data=payload)
+        #time.sleep(1)
+    soup=BS(r.text, 'html.parser')
+    rows=soup.findAll('option')
+
+    for row in rows:
+        #print(row.get_text())
+        #courselist.append(row.get('value')) 
+        var.append(row.get_text())
+        cid.append(row.get('value'))
+        bad_chars = ['\n', '\r'] 
+        #coursename=''.join((filter(lambda i: i not in bad_chars, var))) #Cleaning course names
+        coursename.append(var)
+
+
+
+
+cid = list(dict.fromkeys(cid))
+courselist = dict(zip(cid,coursename))
+print(len(cid))
+print(len(var)) 
+
+csvwrite.write_course(courselist)
+
+
+
+        
+
+
+
+
+query="Course Category"
+res=re.search(query,out)
+status=res.group(0)
+substring=re.findall(r'value=\D(\d{3})\D(.*?)</option',out)
+#print(substring)
