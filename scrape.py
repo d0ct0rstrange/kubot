@@ -20,8 +20,8 @@ savedcount=0
 #Function to Verify if new result has been published or not. 
 #Returns total results count between recent and second recent date
 
-def checkresultcount(): 
-    res=csvwrite.read_from_csv()
+def checkresultcount(out): 
+    res=csvwrite.read_from_csv('data.csv')
     #print(res)
     a=res["recentdate"]
     b=res["secondrecentdate"]
@@ -52,7 +52,7 @@ def worst_case(out,rd,srd,a,b):
         resname=tempoutlist[0]
         resurl=tempoutlist[1]
         print("Result: "+resname+" Download from here:"+resurl)
-    
+    csvwrite.write_results(output,a)
     #We've successfully fetched results from saved dates.
     #Now we need to catchup with the current recent date
     localrecentdate=csvwrite.normalizeDate(rd)
@@ -64,6 +64,7 @@ def worst_case(out,rd,srd,a,b):
         resname=tempoutlist[0]
         resurl=tempoutlist[1]
         print("Result: "+resname+" Download from here:"+resurl)
+    csvwrite.write_results(output2,localrecentdate)
 
 
 
@@ -106,14 +107,14 @@ def update_results():
     else:
         print('No srd dates found')
 
-    currcount=checkresultcount()
+    currcount=checkresultcount(out)
 
     #New updates are available, Check which course
     #if((currcount>int(savedcount)) and ()):
        # print("New Results available! Fetched at: "+str(datetime.now().time()))
 
     #Reading saved details from data.csv to match it with cuurent data   
-    saveddetails=csvwrite.read_from_csv()
+    saveddetails=csvwrite.read_from_csv('data.csv')
     savedrd=saveddetails['recentdate']
     savedsrd=saveddetails['secondrecentdate']
     savedcount=int(saveddetails['count'])
@@ -127,8 +128,8 @@ def update_results():
     #Reverting datetime object to KU site's slash format
     a=csvwrite.normalizeDate(savedrd) #recentdate in KU Format
     b=csvwrite.normalizeDate(savedsrd) #secondrecentdate in KU Format
-
     
+    #worst_case(out,rd,srd,a,b)
     #Scenario #1. Worst case scenario. Results of more than one day published, including results between
     #savedrd and savedsrd.
     #In this case, actual recent date will be far higher than savedrd
@@ -157,6 +158,8 @@ def update_results():
             resname=tempoutlist[0]
             resurl=tempoutlist[1]
             print("Result: "+resname+" Download from here:"+resurl)
+        csvwrite.write_results(output)
+
     #Scenario#3. If result counts are the same, but results got published on different dates
     elif((currcount==savedcount)and (savedrd!=rd)): 
         worst_case(out,rd,srd,a,b)
@@ -171,10 +174,11 @@ def update_results():
         csvwrite.write_to_csv(rd,srd,currcount)
         print("Info successfully wrote to data.csv!")
     except:
-       print("Couldn't write info to data.csv!") 
+       print("Couldn't write info to data.csv!")
 
 update_results()
 
+#csvwrite.read_from_csv('results.csv')
 
 #Debug prints
 
