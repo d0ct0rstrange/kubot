@@ -52,8 +52,8 @@ def read_course():
             mydict = {rows[0]:rows[1] for rows in reader}
     return mydict
 
-def write_results(result,rd):
-    a_file = open("results.csv", "a")
+def write_results(result,rd,filename="results.csv"):
+    a_file = open(filename, "a")
     a_dict = result
     writer = csv.writer(a_file)
     writer.writerow(['id', 'course','url','date'])

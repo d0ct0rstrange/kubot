@@ -4,7 +4,6 @@ import re
 import bot
 from datetime import datetime
 import datefinder
-import concurrent.futures
 import csvwrite,string_clean
 
 
@@ -22,11 +21,7 @@ savedcount=0
 #Returns total results count between recent and second recent date
 
 def checkresultcount(out): 
-    with concurrent.futures.ThreadPoolExecutor() as executor1:
-        t1=executor1.submit(csvwrite.read_from_csv,'data.csv')
-        #res=csvwrite.read_from_csv('data.csv') #original (without threading)
-        res=t1.result()
-
+    res=csvwrite.read_from_csv('data.csv')
     #print(res)
     a=res["recentdate"]
     b=res["secondrecentdate"]
@@ -42,19 +37,15 @@ def worst_case(out,rd,srd,a,b):
     savedrd=datetime.strptime(a, "%d/%m/%Y").date() 
     savedsrd=datetime.strptime(b, "%d/%m/%Y").date() 
     #Extracting Region of Interest from page. i.e, data between rd and srd
-    with concurrent.futures.ThreadPoolExecutor() as executor2:
-        #roi=string_clean.extract_roi(out,a,b)
-  
-        t2=executor2.submit(string_clean.extract_roi, out, a, b)
-        roi=t2.result()
-        count=roi.count("displayList") #displayList is the class name for new result
+    roi=string_clean.extract_roi(out,a,b)
+    
+    count=roi.count("displayList") #displayList is the class name for new result
     
     #To filter result names, we want <td> with attrs valign=true and width=false
     tag="td"
     attributes={'valign':True,'width':False}
 
     #output is a dictionary with serial number (1,2,...) and Result name as value
-
     output=string_clean.clean_results_nourl(roi,tag,attributes)
     for results in output.items():
         tempoutlist=results[1]
@@ -167,7 +158,7 @@ def update_results():
             resname=tempoutlist[0]
             resurl=tempoutlist[1]
             print("Result: "+resname+" Download from here:"+resurl)
-        csvwrite.write_results(output)
+        csvwrite.write_results(output,rd)
 
     #Scenario#3. If result counts are the same, but results got published on different dates
     elif((currcount==savedcount)and (savedrd!=rd)): 
@@ -231,4 +222,5 @@ else:
 #f = open("out", "a")
 #f.write(out)
 #f.close()
+
 
