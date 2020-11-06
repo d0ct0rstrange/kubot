@@ -61,8 +61,8 @@ def write_results(result,rd,filename="results.csv"):
         writer.writerow([key, value[0],value[1],rd])
     a_file.close()
 
-def read_results():
-    with open('results.csv', 'r', newline='') as file:
+def read_results(filename="results.csv"):
+    with open(filename, 'r', newline='') as file:
         data=csv.DictReader(file)
         cont={}
         for row in data:

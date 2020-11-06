@@ -9,6 +9,30 @@ import time, os, itertools
 #a=rd
 #b=srd
 
+#Function to find previous words untill a matched key in a string
+def string_upto_key(string,key="Degree"):
+	b=[]
+	string_list=string.split()
+	for  i in string_list:
+		#print(i)
+		b.append(i)
+		if i==key:
+			break
+	return b
+
+#Function to find previous word from a matched key in a string
+def word_before_key(string,key):
+    b=[]
+    string_list=string.split()
+    for  i in string_list:
+		prev_id=string_list.index(i)-1
+		prev=string_list[prev_id]
+		b.append(i)
+		#print(prev)
+		if i==key:
+			break
+    return prev
+
 def extract_roi(out,a,b):
     c=out.find("Published on "+str(a)) #Start region from rd
     d=out.find("Published on "+str(b)) #Stop region from srd

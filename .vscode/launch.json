@@ -8,7 +8,7 @@
             "name": "Python: Current File",
             "type": "python",
             "request": "launch",
-            "program": "scrape.py",
+            "program": "keywords_enum_from_all_results.py",
             "console": "integratedTerminal"
         }
     ]

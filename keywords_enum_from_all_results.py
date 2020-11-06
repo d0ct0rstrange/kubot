@@ -5,6 +5,7 @@ import csvwrite,string_clean
 import time, os
 from datetime import datetime
 import queue
+import concurrent.futures
 
 #Itereates through all results and extracts results
 #can be used for finding correct keywords related to courses
@@ -97,20 +98,36 @@ def iterate_result_pages(starturl='https://exams.keralauniversity.ac.in/Login/ch
             if values in urls:
                 urls.remove(values)
         try:
-            url=urls[0] #This might be the issue #raises index error on result empty
+            url=urls[0]  #raises index error on result empty
         except IndexError:
             print ("Execution finished! All results have been saved to keywords.csv file!")
             return 1
         page_count+=1
 
+def iskeywordinstring(key,string):
+    key = "abc@gmail.com"
+    string = ["hotmail", "gmail", "yahoo"]
 
+    string_contains_key = any(word in key for word in string)
+    #print(string_contains_key)
+    return string_contains_key
+
+
+def keyword_enum(filename="keywords.csv"):
+    #Opens csv in a new thread
+    with concurrent.futures.ThreadPoolExecutor() as executor1:
+        t1=executor1.submit(csvwrite.read_from_csv,filename)
+        #res=csvwrite.read_from_csv('data.csv') #original (without threading)
+    res=t1.result()
         
-
-
-        
+    for results in res.items():
+        print(results[1])
     
+
+keyword_enum() 
+ 
                 
                 
     
 
-iterate_result_pages()
+
