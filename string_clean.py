@@ -9,6 +9,42 @@ import time, os, itertools
 #a=rd
 #b=srd
 
+
+#Function to return numbers according to the corresponding word
+#Eg:. First => 1, Second=>2 etc
+#Requires a dictionary numbers={} to be declared first
+def word_to_number(string):
+    numbers={
+		    "zeroth":"0",
+		    "first":"1",
+		    "second":"2",
+		    "third":"3",
+		    "fourth":"4",
+		    "fifth":"5",
+		    "sixth":"6",
+		    "seventh":"7",
+		    "eighth":"8",
+		    "nineth":"9",
+		    "tenth":"10",
+		    "eleventh":"11",
+		    "twelveth":"12",
+		    "thirteenth":"13",
+		    "fourteenth":"14",
+		    "fifteenth":"15"
+		    
+		    }
+    string_list=string.split()
+    lower_string=[]
+    return_numbers=[]
+    return_words=[]
+    for i in string_list:
+        lower_string.append(i.lower())
+    for j in lower_string:    
+        if j in numbers.keys():
+                    return_words.append(j)
+                    return_numbers.append(numbers[j])
+    return return_numbers
+
 #Function to find previous words untill a matched key in a string
 def string_upto_key(string,key="Degree"):
 	b=[]
