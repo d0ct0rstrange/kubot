@@ -114,18 +114,30 @@ def iskeywordinstring(key,string):
 
 
 def keyword_enum(filename="keywords.csv"):
-    #Opens csv in a new thread
+    #TODO: Currently this reads only last result. Make that whole list.
+    # Opens csv in a new thread
     with concurrent.futures.ThreadPoolExecutor() as executor1:
         t1=executor1.submit(csvwrite.read_from_csv,filename)
         #res=csvwrite.read_from_csv('data.csv') #original (without threading)
     res=t1.result()
-        
+
+    #Reading text, url and id from saved keywords.csv file  
     for results in res.items():
         print(results[1])
+
+    #Year found in result title
+    with concurrent.futures.ThreadPoolExecutor() as executor2:
+        t2=executor2.submit(string_clean.word_to_year,res['course'])
+    years=t2.result()  
+
+    #Semester/Year found in result title
+    with concurrent.futures.ThreadPoolExecutor() as executor3:
+        t3=executor3.submit(string_clean.word_to_number,res['course'])
+    num=t3.result()
     
 
 keyword_enum() 
- 
+
                 
                 
     

@@ -3,12 +3,21 @@ from bs4 import BeautifulSoup as BS
 import re,string
 import csvwrite
 import time, os, itertools
+import datetime
+
+#variable that stores current date and time at script start
+now = datetime.datetime.now()
 
 #function to extract region of interest from html
 #out=r.text
 #a=rd
 #b=srd
 
+#Function to extract years
+def word_to_year(string):
+    yearslist=list(range(2000,now.year+1)) #list of years from 2000 to current year
+    year=[int(s) for s in string.split() if s.isdigit()]
+    return year
 
 #Function to return numbers according to the corresponding word
 #Eg:. First => 1, Second=>2 etc
@@ -45,6 +54,42 @@ def word_to_number(string):
                     return_numbers.append(numbers[j])
     return return_numbers
 
+
+#Function to return strings according to the corresponding number
+#Eg:. 1 => First, 2=>Second etc
+#Requires a dictionary strings={} to be declared first
+def number_to_word(string):
+    strings={
+		    "0":"zeroth",
+		    "1":"first",
+		    "2":"second",
+		    "3":"third",
+		    "4":"fourth",
+		    "5":"fifth",
+		    "6":"sixth",
+		    "7":"seventh",
+		    "8":"eighth",
+		    "9":"nineth",
+		    "10":"tenth",
+		    "11":"eleventh",
+		    "12":"twelveth",
+		    "13":"thirteenth",
+		    "14":"fourteenth",
+		    "15":"fifteenth"
+		    
+		    }
+    string_list=string.split()
+    lower_string=[]
+    return_string=[]
+    return_words=[]
+    for i in string_list:
+        lower_string.append(i.lower())
+    for j in lower_string:    
+        if j in strings.keys():
+                    return_words.append(j)
+                    return_string.append(strings[j])
+    return return_string
+
 #Function to find previous words untill a matched key in a string
 def string_upto_key(string,key="Degree"):
 	b=[]
@@ -61,12 +106,12 @@ def word_before_key(string,key):
     b=[]
     string_list=string.split()
     for  i in string_list:
-		prev_id=string_list.index(i)-1
-		prev=string_list[prev_id]
-		b.append(i)
-		#print(prev)
-		if i==key:
-			break
+        prev_id=string_list.index(i)-1
+        prev=string_list[prev_id]
+        b.append(i)
+        #print(prev)
+        if i==key:
+            break
     return prev
 
 def extract_roi(out,a,b):
