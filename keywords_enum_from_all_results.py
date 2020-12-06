@@ -1,11 +1,12 @@
 import requests
 from bs4 import BeautifulSoup as BS
 import re,string
-import csvwrite,string_clean
+import csvwrite,string_clean, itertools
 import time, os
 from datetime import datetime
 import queue
 import concurrent.futures
+import csv
 
 #Itereates through all results and extracts results
 #can be used for finding correct keywords related to courses
@@ -65,12 +66,30 @@ def iterate_result_pages(starturl='https://exams.keralauniversity.ac.in/Login/ch
         recentdate=res["recentdate"]
         #output is a dictionary with serial number (1,2,...) and Result name as value
         output=string_clean.clean_results_nourl(out,tag,attributes)
+
+        #Line count of keywords.csv file
+        keywords_file='keywords.csv'
+        if os.path.isfile(keywords_file):
+            c = int(len(open(keywords_file).readlines()))
+        else:
+            with open(keywords_file, 'w') as fp:
+                pass
+                c=0
+                a_file = open(keywords_file, "a")
+                writer = csv.writer(a_file)
+                writer.writerow(['id', 'course','url','date'])
+                a_file.close()
+        final=[]
+        final_dict={}
         for results in output.items():
+            c=c+1
             tempoutlist=results[1]
             resname=tempoutlist[0]
             resurl=tempoutlist[1]
             #print("Result: "+resname+" Download from here:"+resurl)
-        #csvwrite.write_results(output,recentdate,"keywords.csv")
+    
+            final_dict[c]= tempoutlist
+        csvwrite.write_results(final_dict,recentdate,"keywords.csv")
 
                 
         visited_pages.append(url)
@@ -129,15 +148,20 @@ def keyword_enum(filename="keywords.csv"):
     with concurrent.futures.ThreadPoolExecutor() as executor2:
         t2=executor2.submit(string_clean.word_to_year,res['course'])
     years=t2.result()  
-
+    
     #Semester/Year found in result title
     with concurrent.futures.ThreadPoolExecutor() as executor3:
-        t3=executor3.submit(string_clean.word_to_number,res['course'])
-    num=t3.result()
+        t3=executor3.submit(string_clean.sem_or_year,res['course'])
+    sy=t3.result()
     
+    #Extracting Semester/Year number from result title
+    with concurrent.futures.ThreadPoolExecutor() as executor4:
+        t4=executor4.submit(string_clean.which_sem_or_year,res['course'])
+    num=t4.result()
+    print(num)
 
-keyword_enum() 
-
+#keyword_enum() 
+iterate_result_pages()
                 
                 
     

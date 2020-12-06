@@ -56,7 +56,6 @@ def write_results(result,rd,filename="results.csv"):
     a_file = open(filename, "a")
     a_dict = result
     writer = csv.writer(a_file)
-    writer.writerow(['id', 'course','url','date'])
     for key, value in a_dict.items():
         writer.writerow([key, value[0],value[1],rd])
     a_file.close()

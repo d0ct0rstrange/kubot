@@ -8,6 +8,7 @@ import datetime
 #variable that stores current date and time at script start
 now = datetime.datetime.now()
 
+
 #function to extract region of interest from html
 #out=r.text
 #a=rd
@@ -88,6 +89,36 @@ def number_to_word(string):
         if j in strings.keys():
                     return_words.append(j)
                     return_string.append(strings[j])
+    return return_string
+
+#Function to determine the result is of semester or year
+def sem_or_year(string):
+    s=string.lower()
+    return_string=[]
+    if "semester" in s:
+        return_string.append("semester")
+    elif "year" in s:
+        return_string.append("year")
+    else:
+        return_string.append("No semester or year found in result!")
+    return return_string
+
+#Extract semester/year numbers from result
+def which_sem_or_year(string):
+    nums=""
+    sy=sem_or_year(string)
+    numslist=word_to_number(string)
+    nums=listToString(numslist)
+    return number_to_word(nums)
+    
+#find word before specific word     
+def word_before_word(string,keyword):
+    s=string.lower()
+    keyword=keyword[0]
+    keyword=keyword.lower()
+    return_string=[]
+    bef=re.findall(r"\w+(?= "+keyword+")", s)
+    return_string.append(bef)
     return return_string
 
 #Function to find previous words untill a matched key in a string

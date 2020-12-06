@@ -38,4 +38,14 @@ def number_to_word(string):
                     return_numbers.append(numbers[j])
     return return_numbers
 
-print(number_to_word("abcA 123 3"))
+string="First & Second Semester M A Economics (SDE2018 admission) and supplementary (SDE-2017 admission) Degree Examination, January/February 2020  "
+sy=string_clean.sem_or_year(string)
+print(sy)
+numslist=string_clean.word_to_number(string)
+nums=""
+nums=string_clean.listToString(numslist)
+
+print(string_clean.number_to_word(nums))
+diction={}
+print(csvwrite.read_from_csv('keywords.csv'))
+#print(max(k for k, v in diction.iteritems() if v != 0))
