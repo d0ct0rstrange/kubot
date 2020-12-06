@@ -5,47 +5,28 @@ import csvwrite,string_clean
 import time, os
 from datetime import datetime
 import queue
+import csv
+import db
 
-def number_to_word(string):
-    numbers={
-		    "0":"zeroth",
-		    "1":"first",
-		    "2":"second",
-		    "3":"third",
-		    "4":"fourth",
-		    "5":"fifth",
-		    "6":"sixth",
-		    "7":"seventh",
-		    "8":"eighth",
-		    "9":"nineth",
-		    "10":"tenth",
-		    "11":"eleventh",
-		    "12":"twelveth",
-		    "13":"thirteenth",
-		    "14":"fourteenth",
-		    "15":"fifteenth"
-		    
-		    }
-    string_list=string.split()
-    lower_string=[]
-    return_numbers=[]
-    return_words=[]
-    for i in string_list:
-        lower_string.append(i.lower())
-    for j in lower_string:    
-        if j in numbers.keys():
-                    return_words.append(j)
-                    return_numbers.append(numbers[j])
-    return return_numbers
+def course_keywords(filename='courses.csv'):
+	conn=db.create_connection()
+	course_dict={}
+	#Reading from course list
+	mydict=csvwrite.read_from_csv_clean(filename)
+	for i in mydict.items():
+		#Extracting course names
+		cname=i[1]
+		#print(cname) 
 
-string="First & Second Semester M A Economics (SDE2018 admission) and supplementary (SDE-2017 admission) Degree Examination, January/February 2020  "
-sy=string_clean.sem_or_year(string)
-print(sy)
-numslist=string_clean.word_to_number(string)
-nums=""
-nums=string_clean.listToString(numslist)
+		#splitting the words
+		cname_split=cname.split()
+		#print(cname_split) 
+		course_dict[cname_split[0]]=cname_split[1:]
+		#first name is the core course (ba, ma, bcom etc)
+		#We need to extract the core course and save their subsidiaries under it.
+		#save the first name as key in dictionary and everything else as value
+		#alter_table_courses="ALTER TABLE courses ADD COLUMN "+cname_split[0]+" TEXT;"
+		alter_table_courses="ALTER TABLE courses ADD COLUMN=? TEXT;"
+		db.execute_query(conn,alter_table_courses,())
 
-print(string_clean.number_to_word(nums))
-diction={}
-print(csvwrite.read_from_csv('keywords.csv'))
-#print(max(k for k, v in diction.iteritems() if v != 0))
+course_keywords()

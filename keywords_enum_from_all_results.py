@@ -164,3 +164,6 @@ def keyword_enum(filename="keywords.csv"):
 #iterate_result_pages()
                 
 
+x="Career Related First Degree Programme under CBCSS Group 2(b) FIRST SEMESTER BBA (195) (2019 ADMISSION REGULAR, 2018 ADMISSION: IMPROVEMENT 2017, 2016, 2015 & 2014 ADMISSION SUPPLEMENTARY ONLY Degree Examination, November, 2019  "
+y=string_clean.strip_special_except_space_and(x)
+print(y)

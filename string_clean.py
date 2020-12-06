@@ -14,15 +14,18 @@ now = datetime.datetime.now()
 #a=rd
 #b=srd
 
-#Function to 
+#Function to Strip special chars except space and &
+def strip_special_except_space_and(string):
+    for k in string.split("\n"):
+        string_clean=re.sub(r"[^a-zA-Z0-9&]+", ' ', k)
+    return string_clean
 
 #Function to extract years
 def word_to_year(string):
     yearslist=list(range(2000,now.year+1)) #list of years from 2000 to current year
 
     #To strip string of special chars
-    for k in string.split("\n"):
-        string_clean=re.sub(r"[^a-zA-Z0-9]+", ' ', k)
+    string_clean=strip_special_except_space_and(string)
 
     temp=[int(s) for s in string_clean.split() if s.isdigit()]
     year=list([y for y in temp if y in yearslist])

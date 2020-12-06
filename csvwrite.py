@@ -34,7 +34,18 @@ def read_from_csv(filename):
         for row in data:
             cont=row
     return cont
-			
+
+#This is the clean version. Use this. The top one is kept to keep the whole script stable
+#Too lazy to find bugs. Will cleanup later
+def read_from_csv_clean(filename):
+    with open(filename, mode='r') as infile:
+        #Next() is used to skip first line. Here used to skip column names
+        next(infile)
+        reader = csv.reader(infile)
+        mydict = {rows[0]:rows[1] for rows in reader}
+    return mydict
+
+
 def write_course(courses):
     a_file = open("courses.csv", "w")
     a_dict = courses
@@ -56,6 +67,7 @@ def write_results(result,rd,filename="results.csv"):
     a_file = open(filename, "a")
     a_dict = result
     writer = csv.writer(a_file)
+
     for key, value in a_dict.items():
         writer.writerow([key, value[0],value[1],rd])
     a_file.close()
