@@ -14,10 +14,18 @@ now = datetime.datetime.now()
 #a=rd
 #b=srd
 
+#Function to 
+
 #Function to extract years
 def word_to_year(string):
     yearslist=list(range(2000,now.year+1)) #list of years from 2000 to current year
-    year=[int(s) for s in string.split() if s.isdigit()]
+
+    #To strip string of special chars
+    for k in string.split("\n"):
+        string_clean=re.sub(r"[^a-zA-Z0-9]+", ' ', k)
+
+    temp=[int(s) for s in string_clean.split() if s.isdigit()]
+    year=list([y for y in temp if y in yearslist])
     return year
 
 #Function to return numbers according to the corresponding word

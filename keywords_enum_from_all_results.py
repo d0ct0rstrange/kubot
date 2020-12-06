@@ -161,9 +161,6 @@ def keyword_enum(filename="keywords.csv"):
     print(num)
 
 #keyword_enum() 
-iterate_result_pages()
+#iterate_result_pages()
                 
-                
-    
-
 
