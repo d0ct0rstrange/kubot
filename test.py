@@ -26,7 +26,10 @@ def course_keywords(filename='courses.csv'):
 		#We need to extract the core course and save their subsidiaries under it.
 		#save the first name as key in dictionary and everything else as value
 		#alter_table_courses="ALTER TABLE courses ADD COLUMN "+cname_split[0]+" TEXT;"
-		alter_table_courses="ALTER TABLE courses ADD COLUMN=? TEXT;"
-		db.execute_query(conn,alter_table_courses,())
+		alter_table_courses="ALTER TABLE courses ADD COLUMN=?"
+		#db.execute_query(conn,alter_table_courses,cname)param="mca"
+		param="mca"
+		db.execute_query_params(conn,alter_table_courses,param)
 
 course_keywords()
+

@@ -20,6 +20,18 @@ def strip_special_except_space_and(string):
         string_clean=re.sub(r"[^a-zA-Z0-9&]+", ' ', k)
     return string_clean
 
+#Function to Strip special chars including space
+def strip_string(string):
+    for k in string.split("\n"):
+        string_clean=re.sub(r"[^a-zA-Z0-9]+", '', k)
+    return string_clean
+
+
+#Function to Strip special chars including space from all strings inside a list
+def strip_special_from_list(badlist):
+    goodlist=[strip_string(i) for i in badlist if (i!='')]
+    return goodlist
+
 #Function to extract years
 def word_to_year(string):
     yearslist=list(range(2000,now.year+1)) #list of years from 2000 to current year
@@ -273,3 +285,8 @@ def clean_results_nourl(r,tag,attributes):
     # l=final[0]
     # print(l[1])
     return final
+
+def sanitize_sql_query(some_string):
+    c= ''.join(char for char in some_string if char.isalnum())
+    print(c)
+    return c
