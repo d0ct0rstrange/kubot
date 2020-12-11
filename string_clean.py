@@ -8,11 +8,41 @@ import datetime
 #variable that stores current date and time at script start
 now = datetime.datetime.now()
 
+#Convert two lists to dictionary. a=[1,2,3] b=[a,b,c]. Dict c=> [1:a, 2:b, 3:c]
+def lists_to_dic(list1,list2):
+    return dict(zip(list1,list2))
+    
+
+#Convert two lists to list. a=[1,2,3] b=[a,b,c]. Dict c=> [1,a, 2,b, 3,c]
+def lists_to_list(list1,list2):
+    return str(list(zip(list1,list2)))
+    
+
+#Convert string to list.
+def string_to_list(string,seperator):
+    li = list(string.split(seperator))
+    return li 
+
+#Merging two list with custom delimiter.
+def merge_list_custom_seperator(list1,list2,separator=","):
+    merged=""
+    mixed=""
+    for i,j in zip(list1,list2):
+        mixed+=i+" "+j+separator
+    merged=mixed[:-1]
+    return merged
 
 #function to extract region of interest from html
 #out=r.text
 #a=rd
 #b=srd
+
+
+#Function to Strip special chars except space and (input)
+def strip_special_except_space_and_input(string,exception):
+    for k in string.split("\n"):
+        string_clean=re.sub(r"[^a-zA-Z0-9"+exception+"]+", ' ', k)
+    return string_clean
 
 #Function to Strip special chars except space and &
 def strip_special_except_space_and(string):
@@ -176,7 +206,6 @@ def extract_roi(out,a,b):
 
 #To merge two lists as tuple. list3=[(list1[0],list2[0]),(list1[1],list2[1])]
 def merge(list1, list2): 
-      
     merged_list = [(list1[i], list2[i]) for i in range(0, len(list1))] 
     return merged_list 
 

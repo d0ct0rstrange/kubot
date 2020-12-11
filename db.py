@@ -59,13 +59,42 @@ def insert_into_table(connection, tablename,columns,values):
         sql='INSERT INTO %s (%s) values(%s)' % (sanitized_tablename,cols,vals)
         cursor.execute(sql)
         connection.commit()
+
+        print("Query executed successfully")
+    except Error as e:
+        print(f"The error '{e}' occurred")  
+
+def create_table(connection, tablename,columns="courseid,course", types="INT PRIMARY KEY NOT NULL,TEXT NOT NULL"):
+    cursor = connection.cursor()
+    try:
         
+        #Sanitize strings
+        sanitized_tablename=string_clean.strip_special_except_space_and_input(tablename,",")
+        sanitized_columns=string_clean.strip_special_except_space_and_input(columns,",")
+        sanitized_types=string_clean.strip_special_except_space_and_input(types,",")
+
+        #Converting list to sqlite friendly format
+        #cols =string_clean.string_to_list(,",")
+        list_columns=string_clean.string_to_list(sanitized_columns,",")
+        list_types=string_clean.string_to_list(sanitized_types,",")
+        colsandvals=string_clean.merge_list_custom_seperator(list_columns,list_types)
+       
+
+        sql='CREATE TABLE IF NOT EXISTS %s (%s)' % (sanitized_tablename,colsandvals)
+        cursor.execute(sql)
+        connection.commit()
+
         print("Query executed successfully")
     except Error as e:
         print(f"The error '{e}' occurred")  
 
 
+
+
+
 conn=create_connection()
-cols=["b./;'[]a","ma./;'""'; ","id"]
-vals=["english","malayalam"]
-insert_into_table(conn,"courses./;'[]",cols,vals)
+cols=["b./;'[]a","ma./;'""'; ","id"""]
+vals=["englis,./'h","malayalam"";.,//"]
+types=["text","text"]
+create_table(conn,"abcde")
+#insert_into_table(conn,"courses./;'[]",cols,vals)

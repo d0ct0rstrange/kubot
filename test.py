@@ -22,14 +22,19 @@ def course_keywords(filename='courses.csv'):
 		cname_split=cname.split()
 		#print(cname_split) 
 		course_dict[cname_split[0]]=cname_split[1:]
+
 		#first name is the core course (ba, ma, bcom etc)
 		#We need to extract the core course and save their subsidiaries under it.
 		#save the first name as key in dictionary and everything else as value
 		#alter_table_courses="ALTER TABLE courses ADD COLUMN "+cname_split[0]+" TEXT;"
-		alter_table_courses="ALTER TABLE courses ADD COLUMN=?"
-		#db.execute_query(conn,alter_table_courses,cname)param="mca"
-		param="mca"
-		db.execute_query_params(conn,alter_table_courses,param)
+		
+
+
+		#We are going to create 
+		table="courses"
+		column="abc"
+		columntype="text"
+		db.add_column(conn,table,column,columntype)
 
 course_keywords()
 
