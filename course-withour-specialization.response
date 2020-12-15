@@ -1,0 +1,102 @@
+HTTP/1.1 200 OK
+Date: Tue, 15 Dec 2020 20:05:18 GMT
+Server: Apache/2.4.6 (CentOS) OpenSSL/1.0.2k-fips PHP/7.1.20
+X-Powered-By: PHP/7.1.20
+Expires: Thu, 19 Nov 1981 08:52:00 GMT
+Cache-Control: no-store, no-cache, must-revalidate
+Pragma: no-cache
+Content-Length: 1695
+Connection: close
+Content-Type: text/html; charset=UTF-8
+
+
+	
+
+	
+				
+	
+	
+	
+
+ 
+<!--script type="text/javascript"  src="https://exams.keralauniversity.ac.in/Js/JSLogin/__JSStudent.Valid.js"></script>
+<script type="text/javascript"  src="https://exams.keralauniversity.ac.in/Js/JSSCollege/__JSCollege.Valid.js"></script-->
+ <script type="text/javascript" src="https://exams.keralauniversity.ac.in/Js/jquery.min.js"></script>
+<script type="text/javascript" src="https://exams.keralauniversity.ac.in/Js/JSCommon/__StudServiceajaxPage.js"></script> 
+
+
+
+<!--script type="text/javascript">
+function datePopulate(id)
+		{
+		//	$("input[type='text']").click(function()
+		
+		//alert(i);
+					var curr_id = id;
+					$(curr_id).datepick(
+					{
+						dateFormat: 'dd/mm/yyyy', 
+						yearRange: 'c-0:c-70',
+						prevText: '< M', 
+						todayText: 'M y', 
+						nextText: 'M >', 
+						commandsAsDateFormat: true
+					});		     	
+				
+			}
+function showAllAdmission(length)
+{
+var checkAll=document.getElementById("chkadmissionall");
+if(checkAll.checked==true)
+{
+for(var i=0;i<length;i++)
+{
+var check=document.getElementById("chkadmission"+i);
+check.checked=true;
+}
+}
+else
+{
+for(var i=0;i<length;i++)
+{
+var check=document.getElementById("chkadmission"+i);
+check.checked=false;
+}
+}
+ 
+}
+
+
+function showAll(length){
+ 
+var checkAll=document.getElementById("chkselectall");
+ 
+if(checkAll.checked==true)
+{
+for(var i=0;i<length;i++)
+{
+var check=document.getElementById("chkselect"+i);
+ 
+check.checked=true;
+}
+}
+else
+{
+for(var i=0;i<length;i++)
+{
+var check=document.getElementById("chkselect"+i);
+check.checked=false;
+}
+}
+ 
+}
+</script-->
+
+
+
+
+
+
+
+<option value="0">- Specialization -</option></select>
+		 

@@ -1,9 +1,11 @@
+from __future__ import print_function
 import requests
 from bs4 import BeautifulSoup as BS
 import re,string
 import csvwrite, string_clean
 import time
 import itertools
+
 
 #proxies for burp debugging
 proxies = {
@@ -19,6 +21,7 @@ soup=BS(r.text, 'html.parser')
 rows=soup.findAll('option', {"value": re.compile(r"^[0-9]{3}$")})
 streamlist=[] #ID of streams
 streamname=[] #Name of streams
+
 for row in rows:
     streamlist.append(row.get('value')) 
     streamname.append(row.get_text()) 
@@ -36,7 +39,12 @@ headers={
 #This URL also retrieves Course list, given stream_id via selMCourse POST variable
 url = 'https://exams.keralauniversity.ac.in/Login/getAjaxdetails.php'
 with requests.Session() as s:
-        r = s.post(url,headers=headers, proxies=proxies, verify=False)
+        
+        #Request with proxy ON
+        #r = s.post(url,headers=headers, proxies=proxies, verify=False)
+
+        #Request with proxy OFF
+        r = s.post(url,headers=headers, verify=False)
         #Fetched cookie. COOKIE is set in below line
         cookie = {'name':'value','PHPSESSID': requests.utils.dict_from_cookiejar(s.cookies)['PHPSESSID']}
 
@@ -74,19 +82,31 @@ for optionvalue in streamlist:
     #Cleaning stream_name, as it contains \n\r control chars
     sname_filtered = string_clean.clean_string(sname)  
 
-    for row in rows:
-        #Getting coursename and course id
-        cname=row.get_text()    #course_name
-        cval=re.findall(r'[0-9]+', cname) #course_id
-        coursevalue.append(str(cval))
+#TODO: Extract course id for courses that doesn't have course name,but have stream name
+    #If there exists a stream name, but no course name
+    #For example, BFA and Other
+    if len(rows)==0 and sname_filtered!=None:
+            coursename.append(sname_filtered)
+            #Getting coursename and course id
+            cname=row.get_text()    #course_name
+            cval=re.findall(r'[0-9]+', sname_filtered) #course_id
+            coursevalue.append(str(cval))
+            
+    else:
+        for row in rows:
+            #Getting coursename and course id
+            cname=row.get_text()    #course_name
+            cval=re.findall(r'[0-9]+', cname) #course_id
+            coursevalue.append(str(cval))
+            
+            #Cleaning course_name, as it contains \n\r control chars
+            cname_filtered = string_clean.clean_string(cname)  
+
+            #Merging stream_name with course-name
+            #eg: Msc + computer science= Msc computer science
+            coursename.append(sname_filtered+cname_filtered)
         
-        #Cleaning course_name, as it contains \n\r control chars
-        cname_filtered = string_clean.clean_string(cname)  
-
-        #Merging stream_name with course-name
-        #eg: Msc + computer science= Msc computer science
-        coursename.append(sname_filtered+cname_filtered)
-
+sanitized_streams=string_clean.striplist(streamname)
 
 
 

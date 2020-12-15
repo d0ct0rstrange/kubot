@@ -1,6 +1,6 @@
 import sqlite3
 from sqlite3 import Error
-import string_clean
+import string_clean, courseenum
 
 def create_connection(path='kubot.sqlite'):
     connection = None

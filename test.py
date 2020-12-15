@@ -31,10 +31,11 @@ def course_keywords(filename='courses.csv'):
 
 
 		#We are going to create 
-		table="courses"
-		column="abc"
-		columntype="text"
-		db.add_column(conn,table,column,columntype)
+		course_name="bba"
+		course_type="text"
+		course_id="123"
+		id_type="text"
+		db.create_table(conn,)
 
 course_keywords()
 
