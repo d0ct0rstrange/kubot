@@ -8,6 +8,12 @@ import datetime
 #variable that stores current date and time at script start
 now = datetime.datetime.now()
 
+#Extract numbers from string
+def string_to_int(string):
+    res = [int(i) for i in string.split() if i.isdigit()] 
+    return str(res)
+
+
 #Convert two lists to dictionary. a=[1,2,3] b=[a,b,c]. Dict c=> [1:a, 2:b, 3:c]
 def lists_to_dic(list1,list2):
     return dict(zip(list1,list2))

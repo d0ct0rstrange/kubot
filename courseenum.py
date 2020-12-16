@@ -82,15 +82,30 @@ for optionvalue in streamlist:
     #Cleaning stream_name, as it contains \n\r control chars
     sname_filtered = string_clean.clean_string(sname)  
 
+
+    isstreamset=sname_filtered
 #TODO: Extract course id for courses that doesn't have course name,but have stream name
     #If there exists a stream name, but no course name
     #For example, BFA and Other
-    if len(rows)==0 and sname_filtered!=None:
-            coursename.append(sname_filtered)
+    if len(rows)==0 and isstreamset!=None:
+            #Resetting streamid
+            streamid=None
+
             #Getting coursename and course id
-            cname=row.get_text()    #course_name
-            cval=re.findall(r'[0-9]+', sname_filtered) #course_id
-            coursevalue.append(str(cval))
+            #course_name is isstreamset and stream id is streamid
+            for option in soup.find_all('option',text=isstreamset):
+                streamid='value: {}'.format(option['value']) #course_id
+            print(streamid)
+            
+            if streamid:
+                formatted_streamid=str(re.findall(r'\d+',streamid))
+                coursevalue.append(str(string_clean.stripstring(formatted_streamid)))
+                coursename.append(isstreamset+isstreamset)
+
+
+            
+            #Resetting isstream set
+            isstreamset=None
             
     else:
         for row in rows:
@@ -105,6 +120,9 @@ for optionvalue in streamlist:
             #Merging stream_name with course-name
             #eg: Msc + computer science= Msc computer science
             coursename.append(sname_filtered+cname_filtered)
+
+    #Resetting isstream set
+    isstreamset=None
         
 sanitized_streams=string_clean.striplist(streamname)
 
