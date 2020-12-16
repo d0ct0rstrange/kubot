@@ -1,8 +1,8 @@
 import sqlite3
 from sqlite3 import Error
-import string_clean, courseenum
+import string_clean
 
-def create_connection(path='kubot.sqlite'):
+def init_conn(path='kubot.sqlite'):
     connection = None
     try:
         connection = sqlite3.connect(path)
@@ -48,14 +48,18 @@ def insert_into_table(connection, tablename,columns,values):
         
         #Sanitize strings
         sanitized_tablename=string_clean.strip_string(tablename)
-        sanitized_columns=string_clean.strip_special_from_list(columns)
-        sanitized_values=string_clean.strip_special_from_list(values)
+        sanitized_columns=string_clean.strip_special_from_list_except_space(columns)
+
+        median_values=string_clean.strip_special_from_list_except_space(values)
+
+        sanitized_values=string_clean.enclose_elements_in_list_with_symbol(median_values,'"')
 
         #Converting list to sqlite friendly format
         cols = ','.join(sanitized_columns)
         vals = ','.join(sanitized_values)
         #number_of_values = ','.join(['?'] * len(sanitized_values))
 
+        
         sql='INSERT INTO %s (%s) values(%s)' % (sanitized_tablename,cols,vals)
         cursor.execute(sql)
         connection.commit()
@@ -92,9 +96,9 @@ def create_table(connection, tablename,columns="courseid,course", types="INT PRI
 
 
 
-conn=create_connection()
-cols=["b./;'[]a","ma./;'""'; ","id"""]
-vals=["englis,./'h","malayalam"";.,//"]
-types=["text","text"]
-create_table(conn,"abcde")
+# conn=create_connection()
+# cols=["b./;'[]a","ma./;'""'; ","id"""]
+# vals=["englis,./'h","malayalam"";.,//"]
+# types=["text","text"]
+# create_table(conn,"abcde")
 #insert_into_table(conn,"courses./;'[]",cols,vals)

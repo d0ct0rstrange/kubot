@@ -1,11 +1,13 @@
-from __future__ import print_function
 import requests
 from bs4 import BeautifulSoup as BS
 import re,string
 import csvwrite, string_clean
+import db
 import time
 import itertools
 
+#Initiating Database connection
+connec=db.init_conn()
 
 #proxies for burp debugging
 proxies = {
@@ -84,7 +86,7 @@ for optionvalue in streamlist:
 
 
     isstreamset=sname_filtered
-#TODO: Extract course id for courses that doesn't have course name,but have stream name
+
     #If there exists a stream name, but no course name
     #For example, BFA and Other
     if len(rows)==0 and isstreamset!=None:
@@ -121,6 +123,16 @@ for optionvalue in streamlist:
             #eg: Msc + computer science= Msc computer science
             coursename.append(sname_filtered+cname_filtered)
 
+            cname_median=cname_filtered.replace(",","\,")
+            cname_sql_safe=string_clean.string_to_list_sql_safe(cname_median,",")
+
+            mix=''+str(cval[0])+','+str(sname_filtered)+','+str(cname_sql_safe)
+            mix_list=string_clean.string_to_list_sql_safe(mix,",")
+            if string_clean.if_substring_in_list(mix_list,"\\\\"):
+                returned_mix=string_clean.replace_string_from_list_elements(mix_list,"\\\\","\\")
+            print(returned_mix)
+            db.insert_into_table(connec,"courses",string_clean.string_to_list("cid,sname,cname",","),returned_mix)
+
     #Resetting isstream set
     isstreamset=None
         
@@ -143,6 +155,8 @@ courselist = dict(zip(cid,coursename))
 #print(courses["['197']"]) #number format is ['$course_id']. Too lazy to correct it! :/
 #Write output to csv file
 csvwrite.write_course(courses)
+
+#Saving the course list to database
 
 
 

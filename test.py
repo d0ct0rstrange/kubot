@@ -6,10 +6,10 @@ import time, os
 from datetime import datetime
 import queue
 import csv
-import db
+import sqlconnections
 
 def course_keywords(filename='courses.csv'):
-	conn=db.create_connection()
+	conn=sqlconnections.init_conn()
 	course_dict={}
 	#Reading from course list
 	mydict=csvwrite.read_from_csv_clean(filename)
@@ -35,7 +35,7 @@ def course_keywords(filename='courses.csv'):
 		course_type="text"
 		course_id="123"
 		id_type="text"
-		db.create_table(conn,)
+		sqlconnections.create_table(conn,)
 
 course_keywords()
 

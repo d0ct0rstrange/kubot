@@ -23,11 +23,59 @@ def lists_to_dic(list1,list2):
 def lists_to_list(list1,list2):
     return str(list(zip(list1,list2)))
     
+#Enclose string elements in list with provided symbol
+def enclose_elements_in_list_with_symbol(badlist,symbol):
+    goodlist=[]
+    for i in badlist:
+        y=''+symbol+''+i+''+symbol+''
+        goodlist.append(y)
+    return goodlist
+
+#If substring exists in any element of a list
+def if_substring_in_list(searchlist,substring):
+    return_list=[]
+    for i in searchlist:
+        search=i.find(substring)
+        if search:
+            return_list.append(i)
+    return return_list
+
+#Replace sub string if it occurs in an element of a list
+def replace_string_from_list_elements(badlist,element_to_find,element_to_replace):
+    goodlist=[]
+    for element in badlist:
+        goodlist.append(element.replace(element_to_find,element_to_replace))
+    return goodlist
 
 #Convert string to list.
 def string_to_list(string,seperator):
     li = list(string.split(seperator))
     return li 
+
+#Convert string to sql safe list.
+def string_to_list_sql_safe(string,seperator,escape_char="\\"):
+    #a=string.partition(seperator)[0]
+    #b=a[-1]
+    pattern=escape_char+seperator
+    a=string.find(pattern)
+    b=string[a]
+    #Check if the string contains the escape character before the seperator
+    #If escape character is found before separator, then exclude the convertion of that separator in string
+    if b==escape_char:
+        unique_string="!ELLIOTWASHERE!"
+        string2=string.replace(pattern,unique_string) #Replacing --> \, <-- with a unique string
+
+        #Converting the string without the character to be excluded
+        temp_li= list(string2.split(seperator))
+
+        #Reintroducing the escaped character by replacing the unique string with the saved character
+        li=replace_string_from_list_elements(temp_li,unique_string,pattern)
+
+    #If escape character is not found before separator, then convert the string normally
+    else:
+        li= list(string.split(seperator))
+    return li 
+
 
 #Merging two list with custom delimiter.
 def merge_list_custom_seperator(list1,list2,separator=","):
@@ -66,6 +114,11 @@ def strip_string(string):
 #Function to Strip special chars including space from all strings inside a list
 def strip_special_from_list(badlist):
     goodlist=[strip_string(i) for i in badlist if (i!='')]
+    return goodlist
+
+#Function to Strip special chars except space from all strings inside a list
+def strip_special_from_list_except_space(badlist):
+    goodlist=[strip_special_except_space_and(i) for i in badlist if (i!='')]
     return goodlist
 
 #Function to extract years
