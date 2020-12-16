@@ -179,13 +179,29 @@ def enumerate_courses():
     # substring=re.findall(r'value=\D(\d{3})\D(.*?)</option',out)
     #print(substring)
 
-enumerate_courses()
+#enumerate_courses()
 
 def generate_keywords():
     conn=db.init_conn()
-    sql="select sname,cname from courses"
+    sname_list=[]
+    sql="select cid,sname,cname from courses"
     rows=db.execute_query(conn,sql)
     for row in rows:
-        print(row)
+        cid=row[0]
+        sname=row[1]
+        cname=row[2]
 
-#generate_keywords()
+        sanitized_cname=string_clean.strip_special_except_space(cname)
+        sanitized_sname=string_clean.strip_special_except_space(sname)
+
+        cname_list=sanitized_cname.split()
+        print(sanitized_sname)
+
+        #db.create_table(conn,"keywords",sanitized_sname,'TEXT NOT NULL')
+        if sanitized_sname not in sname_list:
+            sname_list.append(sanitized_sname)
+        db.add_column(conn,"keywords",sanitized_sname,'TEXT NOT NULL')
+
+        db.insert_into_table(conn,"keywords",sname_list,cname_list)
+
+generate_keywords()

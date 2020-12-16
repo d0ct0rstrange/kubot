@@ -91,6 +91,11 @@ def merge_list_custom_seperator(list1,list2,separator=","):
 #a=rd
 #b=srd
 
+#Function to Strip special chars except space
+def strip_special_except_space(string):
+    for k in string.split("\n"):
+        string_clean=re.sub(r"[^a-zA-Z0-9]+", ' ', k)
+    return string_clean
 
 #Function to Strip special chars except space and (input)
 def strip_special_except_space_and_input(string,exception):
