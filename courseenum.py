@@ -195,13 +195,17 @@ def generate_keywords():
         sanitized_sname=string_clean.strip_special_except_space(sname)
 
         cname_list=sanitized_cname.split()
-        print(sanitized_sname)
+
+        
+        #TODO: find out how to store keywords efficiently
+        
 
         #db.create_table(conn,"keywords",sanitized_sname,'TEXT NOT NULL')
         if sanitized_sname not in sname_list:
             sname_list.append(sanitized_sname)
-        db.add_column(conn,"keywords",sanitized_sname,'TEXT NOT NULL')
+        keywords=string_clean.lists_to_character_separated_string(sanitized_sname,cname_list,",")
 
-        db.insert_into_table(conn,"keywords",sname_list,cname_list)
+        sql="update courses set keywords='"+keywords+"' where cid='"+str(cid)+"'"
+        db.execute_query(conn,sql)
 
 generate_keywords()

@@ -76,6 +76,16 @@ def string_to_list_sql_safe(string,seperator,escape_char="\\"):
         li= list(string.split(seperator))
     return li 
 
+#Lists to character separated single string
+def lists_to_character_separated_string(list1,list2,separator=","):
+    a=[]
+    s1=stripstring(list1)
+
+    temp_s2=",".join(strip_special_from_list(list2))
+    s2=stripstring(temp_s2)
+
+    final_string=s1+separator+s2
+    return final_string
 
 #Merging two list with custom delimiter.
 def merge_list_custom_seperator(list1,list2,separator=","):
