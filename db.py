@@ -12,15 +12,17 @@ def init_conn(path='kubot.sqlite'):
 
     return connection
 
-def execute_query(connection, query):
+def execute_query(connection, query,silent="0"):
     cursor = connection.cursor()
     try:
         cursor.execute(query)
         connection.commit()
-        print("Query executed successfully")
+        if silent==1:
+            print("Query executed successfully")
         return cursor.fetchall()
     except Error as e:
-        print(f"The error '{e}' occurred")
+        if silent==1:
+            print(f"The error '{e}' occurred")
 
 
 #Use the following format to dynamically add column names and values

@@ -5,7 +5,7 @@ import csvwrite, string_clean
 import db
 import time
 import itertools
-
+import binascii
 
 def enumerate_courses():
     #Initiating Database connection
@@ -204,8 +204,23 @@ def generate_keywords():
         if sanitized_sname not in sname_list:
             sname_list.append(sanitized_sname)
         keywords=string_clean.lists_to_character_separated_string(sanitized_sname,cname_list,",")
-
+        
+        #DEBUG
+        if sanitized_sname=='B Sc':
+        #if keywords=='B Sc,Environmental,Science,Environment,And,Water,Management,216':
+            print(keywords)
+            hex_char=""
+            for c in keywords:
+                hex_char=hex(ord(c))
+                print(c)
+                print(hex_char)
+            
         sql="update courses set keywords='"+keywords+"' where cid='"+str(cid)+"'"
-        db.execute_query(conn,sql)
+        db.execute_query(conn,sql,"1")
 
 generate_keywords()
+
+conn=db.init_conn()
+rows=db.execute_query(conn,"select keywords from courses")
+for row in rows:
+    print(row)

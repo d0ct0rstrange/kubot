@@ -4,9 +4,15 @@ import re,string
 import csvwrite
 import time, os, itertools
 import datetime
+from difflib import SequenceMatcher
 
 #variable that stores current date and time at script start
 now = datetime.datetime.now()
+
+
+#Similarity between strings. If it returns val >=0.5, it is similar
+def similarity_between_strings(a,b):
+	return SequenceMatcher(None, a, b).ratio()
 
 #Extract numbers from string
 def string_to_int(string):
