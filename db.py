@@ -12,7 +12,23 @@ def init_conn(path='kubot.sqlite'):
 
     return connection
 
-def execute_query(connection, query,silent="0"):
+#Function to execute a query
+def execute_query(connection,query,silent="0"):
+    cursor = connection.cursor()
+    try:
+        cursor.execute(query)
+        connection.commit()
+        if silent==1:
+            print("Query executed successfully")
+        return cursor.fetchall()
+    except Error as e:
+        if silent==1:
+            print(f"The error '{e}' occurred")
+
+
+#Function to execute a query, but inside a thread
+def execute_query_thread(query,silent="0"):
+    connection=init_conn()
     cursor = connection.cursor()
     try:
         cursor.execute(query)
@@ -45,7 +61,7 @@ def add_column(connection,tablename,columnname,columntype):
 
 
 
-def insert_into_table(connection, tablename,columns,values):
+def insert_into_table(connection, tablename,columns,values,silent=0):
     cursor = connection.cursor()
     try:
         
@@ -67,9 +83,11 @@ def insert_into_table(connection, tablename,columns,values):
         cursor.execute(sql)
         connection.commit()
 
-        print("Query executed successfully")
+        if silent==0:
+            print("Query executed successfully")
     except Error as e:
-        print(f"The error '{e}' occurred")  
+        if silent==0:
+            print(f"The error '{e}' occurred")  
 
 def create_table(connection, tablename,columns="courseid,course", types="INT PRIMARY KEY NOT NULL,TEXT NOT NULL"):
     cursor = connection.cursor()
@@ -95,7 +113,49 @@ def create_table(connection, tablename,columns="courseid,course", types="INT PRI
     except Error as e:
         print(f"The error '{e}' occurred")  
 
+def dict_to_table(conn,dictionary,recentdate,tablename,columns,values,silent=0):
+    #Dev block. Remove on production
+    conn=init_conn()
+    tablename="results"
+    columns="id,course,url,date"
+    #End of Dev block
 
+    for key, value in dictionary.items():
+        #rid=id in results table
+        rid=str(key)
+
+        #values is a list of result name and url
+        #value[0]=res_name, value[1]=res_url
+
+        #res_name=value[0]
+        #res_url=value[1]
+
+        vals=rid+","+",".join(value)
+        insert_into_table(conn,tablename,columns,values,silent)
+
+
+def dict_to_table_thread(dictionary,recentdate,tablename,columns,values,silent=0):
+    
+    conn=init_conn()
+    
+    #Dev block. Remove on production
+    tablename="results"
+    columns="id,course,url,date"
+    #End of Dev block
+
+    for key, value in dictionary.items():
+        #rid=id in results table
+        rid=str(key)
+
+        #values is a list of result name and url
+        #value[0]=res_name, value[1]=res_url
+
+        #res_name=value[0]
+        #res_url=value[1]
+
+        vals=rid+","+",".join(value)
+        insert_into_table(conn,tablename,columns,values,silent)
+            
 
 
 

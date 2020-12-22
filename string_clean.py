@@ -9,6 +9,14 @@ from difflib import SequenceMatcher
 #variable that stores current date and time at script start
 now = datetime.datetime.now()
 
+#Function to normalize date
+def normalizeDate(date):
+    d=str(date.day)
+    m=str(date.month)
+    y=str(date.year)
+    out=d+"/"+m+"/"+y
+    return out
+
 
 #Similarity between strings. If it returns val >=0.5, it is similar
 def similarity_between_strings(a,b):

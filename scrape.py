@@ -145,7 +145,7 @@ def update_results():
     #There is also discrepencies between actual second rd and savedsrd
     #So, first save the results between savedrd and savedsrd, then
     # update savedrd=currrd, savedsrd=currsrd and fetch the new results.
-    #TODO:uncomment this!
+    #TODO:uncomment any following line in production!
     if((savedrd<rd) and (currcount>savedcount)): 
         worst_case(out,rd,srd,a,b)
     
@@ -167,7 +167,7 @@ def update_results():
             resname=tempoutlist[0]
             resurl=tempoutlist[1]
             print("Result: "+resname+" Download from here:"+resurl)
-        csvwrite.write_results(output)
+        csvwrite.write_results(output,a)
 
     #Scenario#3. If result counts are the same, but results got published on different dates
     elif((currcount==savedcount)and (savedrd!=rd)): 
