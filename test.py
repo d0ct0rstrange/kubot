@@ -69,13 +69,15 @@ def worst_case(out,rd,srd,a,b):
         resname=tempoutlist[0]
         resurl=tempoutlist[1]
         print("Result: "+resname+" Download from here:"+resurl)
+        #New function to write into database
+        #db.dict_to_result_thread(output,rd,srd,resname,resurl)
+        with concurrent.futures.ThreadPoolExecutor() as executor2:
+           t2=executor2.submit(db.dict_to_result_thread,output,a,b,resname,resurl)
+        #res=t2.result()
     #Old function to write into CSV
 	# csvwrite.write_results(output,a)
 
-	#New function to write into database
-    with concurrent.futures.ThreadPoolExecutor() as executor2:
-        t2=executor2.submit(db.dict_to_result_thread,output,a)
-        #res=t2.result()
+	
 
 
 	#We've successfully fetched results from saved dates.

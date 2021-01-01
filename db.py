@@ -120,6 +120,36 @@ def insert_into_table_thread(tablename,columns,values,silent=0):
         if silent==0:
             print(f"The error '{e}' occurred")  
 
+
+
+def insert_into_table_strip_val_except_space_and_input(connection, tablename,columns,values,exception='.',silent=0):
+    cursor = connection.cursor()
+    try:
+        
+        #Sanitize strings
+        sanitized_tablename=string_clean.strip_string(tablename)
+        sanitized_columns=string_clean.strip_special_from_list_except_space(columns)
+
+        median_values=string_clean.strip_special_from_list_except_space_and_input(values,"/")
+
+        sanitized_values=string_clean.enclose_elements_in_list_with_symbol(median_values,'"')
+
+        #Converting list to sqlite friendly format
+        cols = ','.join(sanitized_columns)
+        vals = ','.join(sanitized_values)
+        #number_of_values = ','.join(['?'] * len(sanitized_values))
+
+        
+        sql='INSERT INTO %s (%s) values(%s)' % (sanitized_tablename,cols,vals)
+        cursor.execute(sql)
+        connection.commit()
+
+        if silent==0:
+            print("Query executed successfully")
+    except Error as e:
+        if silent==0:
+            print(f"The error '{e}' occurred")              
+
 def create_table(connection, tablename,columns="courseid,course", types="INT PRIMARY KEY NOT NULL,TEXT NOT NULL"):
     cursor = connection.cursor()
     try:
@@ -169,13 +199,16 @@ def dict_to_table(conn,dictionary,recentdate,tablename,columns,values,silent=0):
 
 
 #Function to save dictionary as table into results, but for threading
-def dict_to_result_thread(dictionary,recentdate,tablename,columns,values,silent=0):
+def dict_to_result_thread(dictionary,recentdate,secondrecentdate,resname,resurltablename="results",silent=0):
     
     conn=init_conn()
     
+    recentdate = string_clean.normalizeDate(recentdate)
+    secondrecentdate = string_clean.normalizeDate(secondrecentdate)
+
     #Dev block. Remove on production
     tablename="results"
-    columns="id,course,url,date"
+    columns=["course","url","date"]
     #End of Dev block
 
     for key, value in dictionary.items():
@@ -188,8 +221,20 @@ def dict_to_result_thread(dictionary,recentdate,tablename,columns,values,silent=
         #res_name=value[0]
         #res_url=value[1]
 
-        vals=rid+","+",".join(value)
-        insert_into_table(conn,tablename,columns,values,silent)
+        for results in dictionary.items():
+            tempoutlist=results[1]
+            resname=tempoutlist[0]
+            resurl=tempoutlist[1]
+            print("Result: "+resname+" Download from here:"+resurl)
+
+        #vals=rid+","+",".join(value)
+
+        vals=[]
+        #vals.append(rid)
+        vals.append(resname)
+        vals.append(resurl)
+        vals.append(recentdate)
+        insert_into_table_strip_val_except_space_and_input(conn,tablename,columns,vals,silent)
 
 #TODO: Unfinished Function      
 #Function to fetch information from data table as dictionary
