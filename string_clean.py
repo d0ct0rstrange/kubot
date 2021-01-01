@@ -150,6 +150,11 @@ def strip_special_from_list_except_space(badlist):
     goodlist=[strip_special_except_space_and(i) for i in badlist if (i!='')]
     return goodlist
 
+#Function to Strip special chars except space from all strings inside a list
+def strip_special_from_list_except_space_and_input(badlist,exception):
+    goodlist=[strip_special_except_space_and_input(i,exception) for i in badlist if (i!='')]
+    return goodlist
+
 #Function to extract years
 def word_to_year(string):
     yearslist=list(range(2000,now.year+1)) #list of years from 2000 to current year

@@ -89,6 +89,37 @@ def insert_into_table(connection, tablename,columns,values,silent=0):
         if silent==0:
             print(f"The error '{e}' occurred")  
 
+
+#Insert into table, but for thread
+def insert_into_table_thread(tablename,columns,values,silent=0):
+    connection=init_conn()
+    cursor = connection.cursor()
+    try:
+        
+        #Sanitize strings
+        sanitized_tablename=string_clean.strip_string(tablename)
+        sanitized_columns=string_clean.strip_special_from_list_except_space(columns)
+
+        median_values=string_clean.strip_special_from_list_except_space(values)
+
+        sanitized_values=string_clean.enclose_elements_in_list_with_symbol(median_values,'"')
+
+        #Converting list to sqlite friendly format
+        cols = ','.join(sanitized_columns)
+        vals = ','.join(sanitized_values)
+        #number_of_values = ','.join(['?'] * len(sanitized_values))
+
+        
+        sql='INSERT INTO %s (%s) values(%s)' % (sanitized_tablename,cols,vals)
+        cursor.execute(sql)
+        connection.commit()
+
+        if silent==0:
+            print("Query executed successfully")
+    except Error as e:
+        if silent==0:
+            print(f"The error '{e}' occurred")  
+
 def create_table(connection, tablename,columns="courseid,course", types="INT PRIMARY KEY NOT NULL,TEXT NOT NULL"):
     cursor = connection.cursor()
     try:
@@ -113,6 +144,7 @@ def create_table(connection, tablename,columns="courseid,course", types="INT PRI
     except Error as e:
         print(f"The error '{e}' occurred")  
 
+#Function to save dictionary as table
 def dict_to_table(conn,dictionary,recentdate,tablename,columns,values,silent=0):
     #Dev block. Remove on production
     conn=init_conn()
@@ -134,7 +166,10 @@ def dict_to_table(conn,dictionary,recentdate,tablename,columns,values,silent=0):
         insert_into_table(conn,tablename,columns,values,silent)
 
 
-def dict_to_table_thread(dictionary,recentdate,tablename,columns,values,silent=0):
+
+
+#Function to save dictionary as table into results, but for threading
+def dict_to_result_thread(dictionary,recentdate,tablename,columns,values,silent=0):
     
     conn=init_conn()
     
@@ -155,7 +190,80 @@ def dict_to_table_thread(dictionary,recentdate,tablename,columns,values,silent=0
 
         vals=rid+","+",".join(value)
         insert_into_table(conn,tablename,columns,values,silent)
-            
+
+#TODO: Unfinished Function      
+#Function to fetch information from data table as dictionary
+def table_to_dictionary(tablename,columns="*",where=''):
+    conn=init_conn()
+    sql="select "+columns+" from "+tablename+" "+where
+    res=execute_query(conn,sql)
+    return res
+    
+#Function to update a table
+def update_table(connection,tablename,columns,values,where,where_value,silent=1):
+    cursor = connection.cursor()
+    try:
+        
+        #Sanitize strings
+        sanitized_tablename=string_clean.strip_string(tablename)
+        sanitized_columns=string_clean.strip_special_from_list_except_space(columns)
+
+        median_values=string_clean.strip_special_from_list_except_space(values)
+
+        sanitized_values=string_clean.enclose_elements_in_list_with_symbol(median_values,'"')
+
+        sanitized_where=string_clean.strip_string(where)
+        sanitized_where_value=string_clean.strip_string(where_value)
+
+        #Converting list to sqlite friendly format
+        cols = ','.join(sanitized_columns)
+        vals = ','.join(sanitized_values)
+        #number_of_values = ','.join(['?'] * len(sanitized_values))
+
+        for i,j in zip(cols,vals):
+            sql='UPDATE %s SET %s=%s' % (sanitized_tablename,i,j)
+            cursor.execute(sql)
+            connection.commit()
+            if silent==0:
+                print("Query executed successfully")
+    except Error as e:
+        if silent==0:
+            print(f"The error '{e}' occurred")
+
+#Function to update a table without where clause, but in thread
+def update_table_no_where_thread(tablename,columns,values,silent=1):
+    connection=init_conn()
+    cursor = connection.cursor()
+    try:
+        
+        #Sanitize strings
+        sanitized_tablename=string_clean.strip_string(tablename)
+        sanitized_columns=string_clean.strip_special_from_list_except_space(columns)
+
+        #median_values=string_clean.strip_special_from_list_except_space(values)
+
+        #Not stripping because it messes up date. Will fix this later
+        sanitized_values=values
+
+        #sanitized_where=string_clean.strip_string(where)
+        #sanitized_where_value=string_clean.strip_string(where_value)
+
+        #Converting list to sqlite friendly format
+        cols = ','.join(sanitized_columns)
+        vals = ','.join(sanitized_values)
+        #number_of_values = ','.join(['?'] * len(sanitized_values))
+
+        cols_list=string_clean.string_to_list(cols,",")
+        vals_list=string_clean.string_to_list(vals,",")
+        for i,j in zip(cols_list,vals_list):
+            sql="UPDATE %s SET %s='%s'" % (sanitized_tablename,i,j)
+            cursor.execute(sql)
+            connection.commit()
+            if silent==0:
+                print("Query executed successfully")
+    except Error as e:
+        if silent==0:
+            print(f"The error '{e}' occurred")
 
 
 
