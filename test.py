@@ -251,3 +251,4 @@ def update_results():
        print(f"The error '{e}' occurred") 
 
 update_results()
+
