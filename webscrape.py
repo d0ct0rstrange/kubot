@@ -260,13 +260,13 @@ def fetch_results(classname="displayList",query="Published on ",url='https://exa
             vals.append(recentdate)
             vals=string_clean.enclose_elements_in_list_with_symbol(vals,"'")
             with concurrent.futures.ThreadPoolExecutor() as executor3:
-                t3=executor3.submit(db.insert_into_table_strip_val_except_space_and_input,"results",cols,vals,"/.:")
+                t3=executor3.submit(db.insert_into_table_strip_val_except_space_and_input_thread,"results",cols,vals,"/.:")
         
     
         # After every new result has been stored in database, reset the count variable to zero in table data
         columns=["count"]
         values=["0"]
-        db.update_table(conn,"data",cols,values)    
+        db.update_table(conn,"data",columns,values)    
 
 
 

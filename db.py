@@ -250,8 +250,8 @@ def update_table(connection,tablename,columns,values,silent=1):
     cursor = connection.cursor()
     try:
         #Placeholder wheres. Ignore for now
-        where=1
-        where_value=1
+        where="1"
+        where_value="1"
 
         #Sanitize strings
         sanitized_tablename=string_clean.strip_string(tablename)
@@ -268,9 +268,15 @@ def update_table(connection,tablename,columns,values,silent=1):
         cols = ','.join(sanitized_columns)
         vals = ','.join(sanitized_values)
         #number_of_values = ','.join(['?'] * len(sanitized_values))
-
-        for i,j in zip(cols,vals):
-            sql='UPDATE %s SET %s=%s' % (sanitized_tablename,i,j)
+        if(len(sanitized_values)>1):
+            for i,j in zip(cols,vals):
+                sql='UPDATE %s SET %s=%s' % (sanitized_tablename,i,j)
+                cursor.execute(sql)
+                connection.commit()
+                if silent==0:
+                    print("Query executed successfully")
+        elif(len(sanitized_values)==1):
+            sql='UPDATE %s SET %s=%s' % (sanitized_tablename,cols,vals)
             cursor.execute(sql)
             connection.commit()
             if silent==0:
@@ -278,6 +284,8 @@ def update_table(connection,tablename,columns,values,silent=1):
     except Error as e:
         if silent==0:
             print(f"The error '{e}' occurred")
+        
+
 
 #Function to update a table without where clause, but in thread
 def update_table_no_where_thread(tablename,columns,values,silent=1):
