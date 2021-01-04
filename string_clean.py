@@ -3,19 +3,31 @@ from bs4 import BeautifulSoup as BS
 import re,string
 import csvwrite
 import time, os, itertools
-import datetime
+import datetime, datefinder
 from difflib import SequenceMatcher
+from dateutil import parser
 
 #variable that stores current date and time at script start
 now = datetime.datetime.now()
 
-#Function to normalize date
-def normalizeDate(date):
+#Function to normalize date (d/m/YYYY)
+# Obsolete. DO NOT USE
+def normalizeDate0(date):
     d=str(date.day)
     m=str(date.month)
     y=str(date.year)
     out=d+"/"+m+"/"+y
     return out
+
+# Function to normalize date (dd/mm/YYYY)
+def normalizeDate(date):
+    gooddate=date.strftime("%d/%m/%Y")
+    return gooddate
+
+# Function to convert string to date, given the delimiter
+def string_to_date(string):
+    date_time_obj=parser.parse(string,fuzzy=True,dayfirst=True).date()
+    return date_time_obj
 
 
 #Similarity between strings. If it returns val >=0.5, it is similar

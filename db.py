@@ -121,8 +121,9 @@ def insert_into_table_thread(tablename,columns,values,silent=0):
             print(f"The error '{e}' occurred")  
 
 
-
-def insert_into_table_strip_val_except_space_and_input(connection, tablename,columns,values,exception='.',silent=0):
+# Insert into table, but for thread and except some characters from values
+def insert_into_table_strip_val_except_space_and_input_thread(tablename,columns,values,exception='.',silent=0):
+    connection=init_conn()
     cursor = connection.cursor()
     try:
         
@@ -130,7 +131,7 @@ def insert_into_table_strip_val_except_space_and_input(connection, tablename,col
         sanitized_tablename=string_clean.strip_string(tablename)
         sanitized_columns=string_clean.strip_special_from_list_except_space(columns)
 
-        median_values=string_clean.strip_special_from_list_except_space_and_input(values,"/")
+        median_values=string_clean.strip_special_from_list_except_space_and_input(values,exception)
 
         sanitized_values=string_clean.enclose_elements_in_list_with_symbol(median_values,'"')
 
@@ -245,10 +246,13 @@ def table_to_dictionary(tablename,columns="*",where=''):
     return res
     
 #Function to update a table
-def update_table(connection,tablename,columns,values,where,where_value,silent=1):
+def update_table(connection,tablename,columns,values,silent=1):
     cursor = connection.cursor()
     try:
-        
+        #Placeholder wheres. Ignore for now
+        where=1
+        where_value=1
+
         #Sanitize strings
         sanitized_tablename=string_clean.strip_string(tablename)
         sanitized_columns=string_clean.strip_special_from_list_except_space(columns)
