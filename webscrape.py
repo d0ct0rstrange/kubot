@@ -270,6 +270,7 @@ def fetch_results(classname="displayList",query="Published on ",url='https://exa
 
 
 
+
 fetch_results_count()
 fetch_results()
 
