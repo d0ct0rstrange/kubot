@@ -18,6 +18,8 @@ b="Published on 22/12/2020"
 c="Published on 1/1/2021"
 d="21/12/2020"
 e="Published on 04/01/2021"
+f="a sc"
+g="a.sc"
 
 res=string_clean.similarity_between_strings(a,d)
 str_res=str(res)
@@ -42,4 +44,4 @@ def string_to_date(string):
         date_time_obj=temp_date_time_obj.date()
     return date_time_obj
 
-print(string_clean.string_to_date(e))
+print(string_clean.similarity_between_strings(f,g))

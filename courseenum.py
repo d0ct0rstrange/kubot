@@ -172,7 +172,7 @@ def enumerate_courses():
     # csvwrite.write_course(courses)
      
 
-    #DON'T REMEMBER WHAT THI IS.
+    #DON'T REMEMBER WHAT THIS IS.
     # query="Course Category"
     # res=re.search(query,out)
     # status=res.group(0)
@@ -220,7 +220,3 @@ def generate_keywords():
 
 generate_keywords()
 
-conn=db.init_conn()
-rows=db.execute_query(conn,"select keywords from courses")
-for row in rows:
-    print(row)

@@ -92,11 +92,19 @@ def checkresultcount(out,query="Published on ",classname="displayList"):
         a=string_clean.normalizeDate(rd)
         b=string_clean.normalizeDate(srd)
 
-    # If current_recentdate is not same as savedrecentdate,
+    # If current_recentdate is not same as savedrecentdate and savedrecentdate!=0,
+    # Then there are unfetched results. So, we need to extract results between rd and saved_srd
     # ROI[start]=curr_recentdate and ROI[end]=savedrecentdate  
-    elif(saved_rd!=rd):
+    elif(saved_rd!=rd and savedcount!=0):
+        a=string_clean.normalizeDate(rd)
+        b=string_clean.normalizeDate(saved_srd)
+
+    # If current_recentdate is not same as savedrecentdate and savedcount==0,
+    # Then there are no unfetched results. So, we can extract data between rd and saved_rd
+    elif(saved_rd!=rd and savedcount==0):
         a=string_clean.normalizeDate(rd)
         b=string_clean.normalizeDate(saved_rd)
+
 
     # Finding Region Of Interest
     c=out.find(query+a) #Start region from rd
@@ -213,12 +221,16 @@ def fetch_results(classname="displayList",query="Published on ",url='https://exa
     global recentdate, secondrecentdate,rd,srd,out,savedcount,currcount
     # Db connection object
     conn=db.init_conn()
+    
+
 
     #Fetching webpage from url
     r = requests.get(url)
     #Saving the web(text) elements to "out" variable
     out = r.text
 
+    with concurrent.futures.ThreadPoolExecutor() as executor1:
+        t1=executor1.submit(checkresultcount(out))
     #query="Published on "
 
     #Searching for query in extracted web contents
@@ -229,49 +241,95 @@ def fetch_results(classname="displayList",query="Published on ",url='https://exa
     #Fetches all dates the results published from result page. Identified by query. (published on)
     alldates = [idx for idx in substring if idx.lower().startswith(query.lower())]
 
-# If recentdate from data is same as new recent date
-    if(saved_rd==rd and savedcount!=0 ):
+# If recentdate from data is same as new recent date,
+# saved_srd==srd but savedcount!=0, then there are new and unfetched results
+# This is the usual case.
+    if(saved_rd==rd and saved_srd==srd and savedcount!=0 ):
         a=recentdate
         b=secondrecentdate
-        with concurrent.futures.ThreadPoolExecutor() as executor2:
-            t2=executor2.submit(string_clean.extract_roi, out, a, b)
-        roi=t2.result()
-        count=roi.count(classname) #displayList is the class name for new result
+# If saved_srd!=secondrecentdate, then there are previously unfetched results
+    elif (saved_srd!=srd and savedcount!=0):
+        a=recentdate
+        b=string_clean.normalizeDate(saved_srd)
+
+# If saved_rd != rd, then there are unfetched results,
+# Refresh the results count and call this function again
+    elif(saved_rd!=rd):
+        fetch_results_count()
+        fetch_results()
+        return 0
+
+
+
+    with concurrent.futures.ThreadPoolExecutor() as executor2:
+        t2=executor2.submit(string_clean.extract_roi, out, a, b)
+    roi=t2.result()
+    count=roi.count(classname) #displayList is the class name for new result
+
+    #To filter result names, we want <td> with attrs valign=true and width=false
+    tag="td"
+    attributes={'valign':True,'width':False}
+
+    #output is a dictionary with serial number (1,2,...) and Result name as value
+
+    output=string_clean.clean_results_nourl(roi,tag,attributes)
+    for results in output.items():
+        tempoutlist=results[1]
+        resname=tempoutlist[0]
+        resurl=tempoutlist[1]
+        print("Result: "+resname+" Download from here:"+resurl)
+
+        # Insert result into table results
+        # Results table has name,url,date columns and id=>AUTO_INCREMENT
+        cols=["name","url","date"]
+        vals=[]
+        vals.append(resname)
+        vals.append(resurl)
+        vals.append(recentdate)
+        vals=string_clean.enclose_elements_in_list_with_symbol(vals,"'")
+        with concurrent.futures.ThreadPoolExecutor() as executor3:
+            t3=executor3.submit(db.insert_into_table_strip_val_except_space_and_input_thread,"results",cols,vals,"/.:")
     
-        #To filter result names, we want <td> with attrs valign=true and width=false
-        tag="td"
-        attributes={'valign':True,'width':False}
 
-        #output is a dictionary with serial number (1,2,...) and Result name as value
+    # After every new result has been stored in database, reset the count variable to zero in table data
+    
+    columns=["recentdate","secondrecentdate","lastfetchtime","count"]  
+    values=[]
+    now=str(datetime.now())
+    values.append(a)
+    values.append(b)
+    values.append(now)
+    values.append("0")
+    db.update_table(conn,"data",columns,values,"/:.-")
 
-        output=string_clean.clean_results_nourl(roi,tag,attributes)
-        for results in output.items():
-            tempoutlist=results[1]
-            resname=tempoutlist[0]
-            resurl=tempoutlist[1]
-            print("Result: "+resname+" Download from here:"+resurl)
 
-            # Insert result into table results
-            # Results table has name,url,date columns and id=>AUTO_INCREMENT
-            cols=["name","url","date"]
-            vals=[]
-            vals.append(resname)
-            vals.append(resurl)
-            vals.append(recentdate)
-            vals=string_clean.enclose_elements_in_list_with_symbol(vals,"'")
-            with concurrent.futures.ThreadPoolExecutor() as executor3:
-                t3=executor3.submit(db.insert_into_table_strip_val_except_space_and_input_thread,"results",cols,vals,"/.:")
+# Function to check if a result is present in database, given a list of keywords
+#
+
+def check_for_results(keywords):
+    result_words=[]
+    found_words=[]
+    with concurrent.futures.ThreadPoolExecutor() as executor1:
+        sql="select * from results"
+        t1=executor1.submit(db.execute_query_thread,sql)
+    res=t1.result()
+    for k in keywords:
+        for r in res:
+            result_words=r[1].split()
+            print(result_words)
+            for w in result_words:
+                similar=string_clean.similarity_between_strings(k,w)
+                if(similar>0.75):
+                    found_words.append(k)
+                    print(found_words)
+                else:
+                    similar=string_clean.similarity_between_strings(k,r)
+                    print("Keyword: "+k+" Result: "+w+" : "+str(similar))
+                
         
-    
-        # After every new result has been stored in database, reset the count variable to zero in table data
-        columns=["count"]
-        values=["0"]
-        db.update_table(conn,"data",columns,values)    
 
 
-
-
-fetch_results_count()
 fetch_results()
-
+l=['m.sc','m sc','zoology']
+#check_for_results(l)
 

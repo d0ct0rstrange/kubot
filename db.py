@@ -235,7 +235,7 @@ def dict_to_result_thread(dictionary,recentdate,secondrecentdate,resname,resurlt
         vals.append(resname)
         vals.append(resurl)
         vals.append(recentdate)
-        insert_into_table_strip_val_except_space_and_input(conn,tablename,columns,vals,silent)
+        insert_into_table_strip_val_except_space_and_input_thread(tablename,columns,vals,silent)
 
 #TODO: Unfinished Function      
 #Function to fetch information from data table as dictionary
@@ -246,7 +246,7 @@ def table_to_dictionary(tablename,columns="*",where=''):
     return res
     
 #Function to update a table
-def update_table(connection,tablename,columns,values,silent=1):
+def update_table(connection,tablename,columns,values,exception='.',silent=1):
     cursor = connection.cursor()
     try:
         #Placeholder wheres. Ignore for now
@@ -257,7 +257,7 @@ def update_table(connection,tablename,columns,values,silent=1):
         sanitized_tablename=string_clean.strip_string(tablename)
         sanitized_columns=string_clean.strip_special_from_list_except_space(columns)
 
-        median_values=string_clean.strip_special_from_list_except_space(values)
+        median_values=string_clean.strip_special_from_list_except_space_and_input(values,exception)
 
         sanitized_values=string_clean.enclose_elements_in_list_with_symbol(median_values,'"')
 
@@ -269,7 +269,7 @@ def update_table(connection,tablename,columns,values,silent=1):
         vals = ','.join(sanitized_values)
         #number_of_values = ','.join(['?'] * len(sanitized_values))
         if(len(sanitized_values)>1):
-            for i,j in zip(cols,vals):
+            for i,j in zip(sanitized_columns,sanitized_values):
                 sql='UPDATE %s SET %s=%s' % (sanitized_tablename,i,j)
                 cursor.execute(sql)
                 connection.commit()
