@@ -136,6 +136,7 @@ def checkresultcount(out,query="Published on ",classname="displayList"):
 
     return count
 
+#OBSOLETE. REDUNDANT TO CHECK_RESULT_COUNT()
 #Function to fetch web page and check results count.
 # Depends on checkresultcount() function
 def fetch_results_count(classname="displayList",query="Published on ",url='https://exams.keralauniversity.ac.in/Login/check8'):
@@ -296,8 +297,8 @@ def fetch_results(classname="displayList",query="Published on ",url='https://exa
     columns=["recentdate","secondrecentdate","lastfetchtime","count"]  
     values=[]
     now=str(datetime.now())
-    values.append(a)
-    values.append(b)
+    values.append(recentdate)
+    values.append(secondrecentdate)
     values.append(now)
     values.append("0")
     db.update_table(conn,"data",columns,values,"/:.-")
@@ -306,30 +307,56 @@ def fetch_results(classname="displayList",query="Published on ",url='https://exa
 # Function to check if a result is present in database, given a list of keywords
 #
 
-def check_for_results(keywords):
-    result_words=[]
+def check_for_results(keywords,badlist):
+    result_words=""
     found_words=[]
+
+    #keys=keywords[0]
+    #keys=string_clean.string_to_list(keys,",")
+
+    keys=keywords
+
     with concurrent.futures.ThreadPoolExecutor() as executor1:
         sql="select * from results"
-        t1=executor1.submit(db.execute_query_thread,sql)
+        t1=executor1.submit(db.execute_query_thread,sql,1)
     res=t1.result()
-    for k in keywords:
-        for r in res:
-            result_words=r[1].split()
-            print(result_words)
-            for w in result_words:
-                similar=string_clean.similarity_between_strings(k,w)
-                if(similar>0.75):
+    for r in res:
+        result_words=r[1].lower()
+        for k in keys:
+            if(k in result_words and k not in badlist):
+                print(result_words)
+                print(k)
+                if(k not in found_words):
                     found_words.append(k)
-                    print(found_words)
-                else:
-                    similar=string_clean.similarity_between_strings(k,r)
-                    print("Keyword: "+k+" Result: "+w+" : "+str(similar))
+    if(len(found_words)>0):   
+        print(found_words)
                 
         
 
 
 fetch_results()
-l=['m.sc','m sc','zoology']
-#check_for_results(l)
+
+# TODO: create another fuction to fetch keywords and calling check_for_results()
+# create a config.db to store vars like badlist and fetch badlist from db
+badlist=[]
+x=' fourth semester post graduate degree examinations july 2020 m. sc. zoology regular supplementary '
+keys=['m. sc.','M. Sc.','M. Sc','m.sc', 'Physics', 'with', 'specialization', 'in', 'applied', 'electronics', 'CSS', '840']
+#badlist=['in','with','and']
+
+with concurrent.futures.ThreadPoolExecutor() as executor1:
+    sql="select badlist from config"
+    t1=executor1.submit(db.execute_query_thread,sql,1)
+temp_badlist=t1.result()
+for i in temp_badlist:
+    badlist.append(string_clean.strip_string(str(i)))
+for k in keys:
+
+    if(k in x and k not in badlist):
+        print(k)
+        print(x)
+
+res=db.execute_query(db.init_conn(),"select keywords from courses where sname='MSc'",1)
+for k in res:
+    #k=['m.sc','m sc','zoology']
+    check_for_results(keys,badlist)
 

@@ -2,8 +2,10 @@ import dateutil as dparser
 from dateutil import parser
 import concurrent.futures
 import datetime, datefinder
+import concurrent.futures
 
 import db,string_clean
+import csvwrite
 
 ax="1"
 
@@ -35,13 +37,99 @@ resu=parser.parse("monkey 21/12/2020 love banana",fuzzy=True)
 #print(resu.date())
 x=resu.date()
 
-def string_to_date(string):
-    matches = list(datefinder.find_dates(string))
-    temp_date_obj=matches[0]
-    if len(matches) > 0:
-        # date returned will be a datetime.datetime object. here we are only using the first match.
-        temp_date_time_obj = matches[0]
-        date_time_obj=temp_date_time_obj.date()
-    return date_time_obj
+# code block that checks for keywords in result string
+# ignores strings mentioned in badlist
+# x= result_string
+# keys=keywords for a course
+# badlist= strings_to_ignore
 
-print(string_clean.similarity_between_strings(f,g))
+x=' fourth semester post graduate degree examinations july 2020 m. sc. zoology regular supplementary '
+keys=['m. sc.','MSc', 'Physics', 'with', 'specialization', 'in', 'applied', 'electronics', 'CSS', '840']
+badlist=['in','with']
+for k in keys:
+
+    if(k in x and k not in badlist):
+        print(k)
+        print(x)
+# END of code block 
+
+def course_keyword_generator(string_list):
+    k_list=[]
+    with concurrent.futures.ThreadPoolExecutor() as executor11:
+        sql="select sname from courses"
+        t11=executor11.submit(db.execute_query_thread,sql)
+    res=t11.result()
+    for r in res:
+        print(r)
+        # TODO: Add spaces and dots between words to create possible values
+        # possibilities
+        # 'abc', "a.bc","a bc","a. bc","a bc.","a. bc","a. bc."
+        # There are also b.a.m.s, l.l.b etc with multiple dots
+        # 1. f= extract first letter
+        # 2. s= extract letters except first letter
+        # 3. add . and space at end of first letter
+        # 4. add space to beginning and end of second part
+        r=string_clean.strip_string(str(r))
+        first_part=r[0:1]
+        second_part=r[1:len(r)]
+        symbols=["."," "]
+
+        string=""
+        for i in r[:-1]:
+            string+=i+"."
+        string+=r[-1]
+
+        if string not in k_list:
+            k_list.append(string)
+
+        # a.bc
+        string=first_part+"."+second_part
+        if string not in k_list:
+            k_list.append(string)
+        
+        # "a.bc "
+        string=first_part+"."+second_part+" "
+        if string not in k_list:
+            k_list.append(string)
+        
+        # a bc
+        string=first_part+" "+second_part
+        if string not in k_list:
+            k_list.append(string)
+
+        # "a bc "
+        string=first_part+" "+second_part+" "
+        if string not in k_list:
+            k_list.append(string)
+
+        # "a bc."
+        string=first_part+" "+second_part+"."
+        if string not in k_list:
+            k_list.append(string)
+
+        # "a bc. "
+        string=first_part+" "+second_part+". "
+        if string not in k_list:
+            k_list.append(string)
+
+        # "a. bc"
+        string=first_part+". "+second_part
+        if string not in k_list:
+            k_list.append(string)
+
+        # "a. bc "
+        string=first_part+". "+second_part+" "
+        if string not in k_list:
+            k_list.append(string)
+
+        # "a. bc. "
+        string=first_part+". "+second_part+". "
+        if string not in k_list:
+            k_list.append(string)
+
+
+
+    print(k_list)
+
+#course_keyword_generator(keys)
+

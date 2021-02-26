@@ -62,7 +62,7 @@ def if_substring_in_list(searchlist,substring):
     return_list=[]
     for i in searchlist:
         search=i.find(substring)
-        if search:
+        if search!=-1:
             return_list.append(i)
     return return_list
 
@@ -424,3 +424,7 @@ def sanitize_sql_query(some_string):
     c= ''.join(char for char in some_string if char.isalnum())
     print(c)
     return c
+
+#Function to convert string to lowercase
+def string_to_lowercase(string):
+    return string.lower()

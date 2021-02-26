@@ -179,8 +179,8 @@ def create_table(connection, tablename,columns="courseid,course", types="INT PRI
 def dict_to_table(conn,dictionary,recentdate,tablename,columns,values,silent=0):
     #Dev block. Remove on production
     conn=init_conn()
-    tablename="results"
-    columns="id,course,url,date"
+    #tablename="results"
+    #columns="id,course,url,date"
     #End of Dev block
 
     for key, value in dictionary.items():
