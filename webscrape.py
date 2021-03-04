@@ -369,6 +369,7 @@ def is_result_published(cid='630'):
         badlist.append(string_clean.strip_string(str(i)))
     
     res=db.execute_query(db.init_conn(),"select keywords from courses where cid='"+cid+"'",1)
+
     for key in res:
         #k=['m.sc','m sc','zoology']
         print(key)
@@ -377,10 +378,9 @@ def is_result_published(cid='630'):
         key=string_clean.string_to_list_sql_safe(key[0],",")
         ret=check_for_results(key,badlist)
 
-        while(len(ret)!=2):
-            found_word=ret[0]
-            key=string_clean.replace_string_from_list_elements(key,found_word,'')
-            ret=check_for_results(key,badlist)
+        found_word=ret[0]
+        key=string_clean.replace_string_from_list_elements(key,found_word,'')
+        ret=check_for_results(key,badlist)
         
         print(ret)
 
