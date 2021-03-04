@@ -309,8 +309,11 @@ def fetch_results(classname="displayList",query="Published on ",url='https://exa
 
 def check_for_results(keywords,badlist):
     result_words=""
+    
     found_words=[]
+    results=[]
 
+    ret=[]
     #keys=keywords[0]
     #keys=string_clean.string_to_list(keys,",")
 
@@ -325,38 +328,61 @@ def check_for_results(keywords,badlist):
         for k in keys:
             if(k in result_words and k not in badlist):
                 print(result_words)
+                results.append(result_words)
                 print(k)
                 if(k not in found_words):
                     found_words.append(k)
     if(len(found_words)>0):   
-        print(found_words)
+        ret.extend(found_words)
+        ret.extend(results)
+        # The first value of ret is the keyword found.
+        # Everything else are the results.
+        return ret
                 
         
 
 
 fetch_results()
 
+
+
 # TODO: create another fuction to fetch keywords and calling check_for_results()
 # create a config.db to store vars like badlist and fetch badlist from db
-badlist=[]
-x=' fourth semester post graduate degree examinations july 2020 m. sc. zoology regular supplementary '
-keys=['m. sc.','M. Sc.','M. Sc','m.sc', 'Physics', 'with', 'specialization', 'in', 'applied', 'electronics', 'CSS', '840']
-#badlist=['in','with','and']
 
-with concurrent.futures.ThreadPoolExecutor() as executor1:
-    sql="select badlist from config"
-    t1=executor1.submit(db.execute_query_thread,sql,1)
-temp_badlist=t1.result()
-for i in temp_badlist:
-    badlist.append(string_clean.strip_string(str(i)))
-for k in keys:
+# Function that takes keywords, fetches badlist from table 'config' and passes the keywords and badlist
+# to check_for_results() function.
+# is_result_published() function is the function that should be used to check for results by keyword
+# TODO: For now, keys is the argument and is statically given. I should replace the argument with
+# sname(stream_name) or some other unique name and fetch keywords related to that stream from 'courses'
+  
+def is_result_published(cid='630'):
+    badlist=[]
+    
+    #keys=['m. sc.','M. Sc.','M. Sc','m.sc', 'Physics', 'with', 'specialization', 'in', 'applied', 'electronics', 'CSS', '840'])
+    #badlist=['in','with','and']
 
-    if(k in x and k not in badlist):
-        print(k)
-        print(x)
+    with concurrent.futures.ThreadPoolExecutor() as executor1:
+        sql="select badlist from config"
+        t1=executor1.submit(db.execute_query_thread,sql,0)
+    temp_badlist=t1.result()
+    for i in temp_badlist: # Populating badlist from table 'config'
+        badlist.append(string_clean.strip_string(str(i)))
+    
+    res=db.execute_query(db.init_conn(),"select keywords from courses where cid='"+cid+"'",1)
+    for key in res:
+        #k=['m.sc','m sc','zoology']
+        print(key)
 
-res=db.execute_query(db.init_conn(),"select keywords from courses where sname='MSc'",1)
-for k in res:
-    #k=['m.sc','m sc','zoology']
-    check_for_results(keys,badlist)
+        # Converting tuple key to iterable variable.
+        key=string_clean.string_to_list_sql_safe(key[0],",")
+        ret=check_for_results(key,badlist)
 
+        while(len(ret)!=2):
+            found_word=ret[0]
+            key=string_clean.replace_string_from_list_elements(key,found_word,'')
+            ret=check_for_results(key,badlist)
+        
+        print(ret)
+
+
+is_result_published()
